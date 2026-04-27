@@ -58,7 +58,7 @@ export default function Home() {
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [view, setView] = useState<'feed'|'profile'>('feed');
+  const [view, setView] = useState<'feed'|'profile'>('signup');
 
   const isDark = darkMode;
   const containerStyle = { minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' };
@@ -71,7 +71,13 @@ export default function Home() {
 
   useEffect(() => {
     const saved = localStorage.getItem('user');
-    if (saved) setUser(JSON.parse(saved));
+    if (saved) {
+      setUser(JSON.parse(saved));
+      setView('feed');
+    } else {
+      setShowModal(true);
+      setMode('signup');
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -496,6 +502,10 @@ export default function Home() {
                   {mode === 'signup' && <input style={styles.input} name="username" placeholder="Username" required />}
                   <input style={styles.input} name="email" placeholder="Email" type="email" required />
                   <input style={styles.input} name="password" placeholder="Password" type="password" required />
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, cursor: 'pointer' }}>
+                    <input type="checkbox" name="keepSignedIn" defaultChecked={false} />
+                    <span style={{ fontSize: '0.85rem', color: '#A1A1AA' }}>Keep me signed in</span>
+                  </label>
                 </>
               )}
               {error && <p style={{ color: '#ef4444', marginBottom: 16 }}>{error}</p>}
