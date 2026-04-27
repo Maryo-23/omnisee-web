@@ -210,7 +210,7 @@ export default function Home() {
         </section>
       )}
 
-      {showFeed && user && (
+      {showFeed && (
         <div style={styles.feed}>
           {featured.map((item, i) => (
             <div key={i} style={styles.feedCard}>
