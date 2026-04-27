@@ -143,7 +143,7 @@ export default function Home() {
     }
   };
 
-  const [showFeed, setShowFeed] = useState(false);
+  const [showFeed, setShowFeed] = useState(true);
 
   const featured = [
     { title: 'Swiss Alps', author: 'MountainLens', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
