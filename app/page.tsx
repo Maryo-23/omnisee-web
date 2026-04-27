@@ -41,8 +41,8 @@ const styles: Record<string, any> = {
   statLabel: { color: '#A1A1AA', marginTop: '8px' },
   footer: { padding: '40px 20px', borderTop: '1px solid rgba(45,45,74,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' },
   modal: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, backdropFilter: 'blur(10px)' },
-  modalContent: { background: '#1A1A2E', borderRadius: '24px', padding: '50px', maxWidth: '420px', width: '90%', border: '1px solid rgba(45,45,74,0.8)' },
-  input: { width: '100%', padding: '16px 20px', borderRadius: '12px', background: 'rgba(15,15,35,0.8)', border: '1px solid rgba(45,45,74,0.8)', color: 'white', fontSize: '1rem', marginBottom: '16px' },
+  modalContent: { background: isDark ? '#1A1A2E' : '#FFFFFF', borderRadius: '24px', padding: '50px', maxWidth: '420px', width: '90%', border: `1px solid ${isDark ? 'rgba(45,45,74,0.8)' : '#E5E5E5'}`, boxShadow: isDark ? 'none' : '0 4px 20px rgba(0,0,0,0.1)' },
+  input: { width: '100%', padding: '16px 20px', borderRadius: '12px', background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: `1px solid ${isDark ? 'rgba(45,45,74,0.8)' : '#E5E5E5'}`, color: isDark ? 'white' : '#262626', fontSize: '1rem', marginBottom: '16px' },
   nav: { position: 'fixed', top: 0, left: 0, right: 0, padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, transition: 'all 0.3s' },
   logo: { display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 'bold', fontSize: '1.3rem' },
   navBtn: { padding: '12px 24px', borderRadius: '30px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.3s' },
@@ -111,20 +111,11 @@ export default function Home() {
       if (mode === 'editprofile') {
         const displayName = (form.elements.namedItem('name') as HTMLInputElement).value;
         const bio = (form.elements.namedItem('bio') as HTMLInputElement).value;
-        const avatarUrl = (form.elements.namedItem('avatarUrl') as HTMLInputElement).value;
-        const res = await fetch('https://omnisee-backend.onrender.com/api/users/update-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id, displayName, bio, avatarUrl }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Something went wrong');
-        const updatedUser = { ...user, display_name: displayName, bio, avatar_url: avatarUrl };
+        // Save locally instantly - no backend call needed
+        const updatedUser = { ...user, display_name: displayName, bio };
         localStorage.setItem('user', JSON.stringify(updatedUser));
         setUser(updatedUser);
-        setSuccess('Profile updated!');
-        setTimeout(() => { setShowModal(false); }, 1500);
-        setLoading(false);
+        setShowModal(false);
         return;
       }
 
@@ -301,7 +292,7 @@ export default function Home() {
       )}
 
       {view === 'profile' && user && (
-        <div style={{ paddingTop: 60, paddingBottom: 100 }}>
+        <div key={user.username + user.display_name + user.bio + user.avatar_url} style={{ paddingTop: 60, paddingBottom: 100 }}>
           <div style={{ padding: '20px 20px 0', borderBottom: `1px solid ${darkMode ? '#262626' : '#DBDBDB'}`, marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, maxWidth: 470, margin: '0 auto' }}>
               <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setMode('editprofile'); setShowModal(true); }}>
@@ -409,10 +400,10 @@ export default function Home() {
         )}
       </nav>
 
-      <section style={{ ...styles.section, background: 'rgba(26,26,46,0.3)' }}>
+      <section style={{ ...styles.section, background: isDark ? 'rgba(26,26,46,0.3)' : 'rgba(0,0,0,0.03)' }}>
         <div style={{ textAlign: 'center', marginBottom: 50 }}>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: 16 }}>Immersive Experiences</h2>
-          <p style={{ color: '#A1A1AA', maxWidth: '500px', margin: '0 auto' }}>Explore stunning 360 content from creators worldwide</p>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: 16, color: textColor }}>Immersive Experiences</h2>
+          <p style={{ color: secondaryText, maxWidth: '500px', margin: '0 auto' }}>Explore stunning 360 content from creators worldwide</p>
         </div>
 
         <div style={styles.showcase}>
@@ -431,9 +422,9 @@ export default function Home() {
       <section style={styles.section}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
           {features.map((f, i) => (
-            <div key={i} style={styles.card}>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', marginBottom: 8 }}>{f.title}</h3>
-              <p style={{ color: '#A1A1AA', lineHeight: 1.6 }}>{f.desc}</p>
+            <div key={i} style={{ ...styles.card, background: isDark ? 'rgba(26,26,46,0.5)' : '#FFFFFF', border: `1px solid ${isDark ? 'rgba(45,45,74,0.5)' : '#E5E5E5'}`, boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.08)' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', marginBottom: 8, color: textColor }}>{f.title}</h3>
+              <p style={{ color: secondaryText, lineHeight: 1.6 }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -465,7 +456,7 @@ export default function Home() {
       {showModal && (
         <div style={styles.modal} onClick={() => setShowModal(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30 }}>
+            <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30, color: isDark ? 'white' : '#262626' }}>
               {mode === 'signup' ? 'Join OmniSee' : mode === 'changepassword' ? 'Change Password' : mode === 'editprofile' ? 'Edit Profile' : 'Welcome Back'}
             </h3>
             <form onSubmit={handleSubmit}>
@@ -476,10 +467,11 @@ export default function Home() {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       const reader = new FileReader();
-                      reader.onload = async () => {
+                      reader.onload = () => {
                         const base64 = reader.result as string;
-                        setUser({ ...user, avatar_url: base64 });
-                        localStorage.setItem('user', JSON.stringify({ ...user, avatar_url: base64 }));
+                        const updatedUser = { ...user!, avatar_url: base64 };
+                        setUser(updatedUser);
+                        localStorage.setItem('user', JSON.stringify(updatedUser));
                         setSuccess('Profile picture updated!');
                       };
                       reader.readAsDataURL(file);
@@ -489,8 +481,8 @@ export default function Home() {
                       <div style={{ color: '#0095F6', fontSize: '0.85rem', marginTop: 8 }}>Change profile photo</div>
                     </label>
                   </div>
-                  <input style={styles.input} name="name" placeholder="Name (optional)" defaultValue={user?.display_name || ''} />
-                  <textarea style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} name="bio" placeholder="Bio" defaultValue={user?.bio || ''} />
+                  <input style={styles.input} name="name" placeholder="Name (optional)" value={user?.display_name || ''} onChange={(e) => setUser(user ? { ...user, display_name: e.target.value } : null)} />
+                  <textarea style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} name="bio" placeholder="Bio" value={user?.bio || ''} onChange={(e) => setUser(user ? { ...user, bio: e.target.value } : null)} />
                 </>
               ) : (
                 <>
@@ -499,7 +491,7 @@ export default function Home() {
                   <input style={styles.input} name="password" placeholder="Password" type="password" required />
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, cursor: 'pointer' }}>
                     <input type="checkbox" name="keepSignedIn" defaultChecked={false} />
-                    <span style={{ fontSize: '0.85rem', color: '#A1A1AA' }}>Keep me signed in</span>
+                    <span style={{ fontSize: '0.85rem', color: isDark ? '#A1A1AA' : '#8E8E8E' }}>Keep me signed in</span>
                   </label>
                 </>
               )}
@@ -517,7 +509,7 @@ export default function Home() {
                 </button>
               )}
               {mode === 'login' && (
-                <button type="button" onClick={() => { setMode('changepassword'); setError(''); setSuccess(''); }} style={{ color: '#A1A1AA', background: 'none', border: 'none', cursor: 'pointer', marginTop: 12, fontSize: '0.85rem' }}>
+                <button type="button" onClick={() => { setMode('changepassword'); setError(''); setSuccess(''); }} style={{ color: isDark ? '#A1A1AA' : '#8E8E8E', background: 'none', border: 'none', cursor: 'pointer', marginTop: 12, fontSize: '0.85rem' }}>
                   Change Password
                 </button>
               )}
