@@ -4,16 +4,24 @@ import { useState, CSSProperties, useEffect } from 'react';
 const API = 'https://omnisee-backend.onrender.com';
 
 const styles: Record<string, CSSProperties> = {
-  container: { minHeight: '100vh', background: 'linear-gradient(180deg, #0F0F23 0%, #1A1A2E 100%)', color: 'white', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' },
+  container: { minHeight: '100vh', background: 'linear-gradient(180deg, #000000 0%, #121212 100%)', color: 'white', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' },
+  topNav: { position: 'fixed', top: 0, left: 0, right: 0, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' },
   floatingNav: { position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 24, padding: '12px 32px', background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)', backdropFilter: 'blur(20px)', borderRadius: 50, border: '1px solid rgba(255,255,255,0.1)', zIndex: 50 },
   floatingBtn: { width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', border: 'none', transition: 'transform 0.2s' },
-  feed: { padding: 20, marginTop: 60, marginBottom: 100 },
-  feedCard: { background: '#262630', borderRadius: 16, marginBottom: 20, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' },
-  feedHeader: { display: 'flex', alignItems: 'center', gap: 12, padding: 16 },
-  feedAvatar: { width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' },
+  feed: { padding: 0, marginTop: 50, marginBottom: 80, maxWidth: 470, margin: '50px auto 80px' },
+  feedCard: { background: '#000000', marginBottom: 12, border: '1px solid #262626' },
+  feedHeader: { display: 'flex', alignItems: 'center', gap: 12, padding: 14 },
+  feedAvatar: { width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', objectFit: 'cover' },
+  feedUsername: { fontWeight: 600, fontSize: '0.9rem' },
+  feedLocation: { fontSize: '0.75rem', color: '#A8A8A8' },
   feedImage: { width: '100%', aspectRatio: '1/1', background: 'linear-gradient(135deg, #1DA1F2, #0A66C2)' },
-  feedActions: { display: 'flex', gap: 16, padding: '12px 16px' },
-  feedIcon: { width: 24, height: 24, cursor: 'pointer' },
+  feedActions: { display: 'flex', gap: 16, padding: '12px 14px' },
+  feedIcon: { width: 24, height: 24, cursor: 'pointer', color: 'white' },
+  feedActionsRight: { marginLeft: 'auto', display: 'flex', gap: 12 },
+  feedLikeCount: { fontWeight: 600, fontSize: '0.9rem', padding: '0 14px' },
+  feedCaption: { padding: '0 14px 14px', fontSize: '0.9rem' },
+  feedCaptionUser: { fontWeight: 600, marginRight: 6 },
+  feedTime: { padding: '0 14px 14px', fontSize: '0.75rem', color: '#A8A8A8' },
   hero: { position: 'relative', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   heroBg: { position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 20%, rgba(99,102,241,0.15) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(236,72,153,0.1) 0%, transparent 50%)' },
   heroGrid: { position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(99,102,241,0.15) 1px, transparent 1px)', backgroundSize: '60px 60px', opacity: 0.5 },
@@ -186,8 +194,8 @@ export default function Home() {
                   View Feed
                 </button>
               ) : (
-                <button style={{ ...styles.btn, ...styles.btnSecondary }}>
-                  View Showcase
+                <button onClick={() => { setMode('login'); setShowModal(true); }} style={{ ...styles.btn, ...styles.btnSecondary }}>
+                  Sign In
                 </button>
               )}
             </div>
@@ -204,19 +212,29 @@ export default function Home() {
 
       {showFeed && user && (
         <div style={styles.feed}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: 20 }}>Feed</h2>
           {featured.map((item, i) => (
             <div key={i} style={styles.feedCard}>
               <div style={styles.feedHeader}>
-                <div style={styles.feedAvatar} />
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`} style={styles.feedAvatar} alt="" />
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{item.author}</div>
-                  <div style={{ color: '#A1A1AA', fontSize: '0.8rem' }}>2h ago</div>
+                  <div style={styles.feedUsername}>{item.author}</div>
+                  <div style={styles.feedLocation}>Switzerland</div>
+                </div>
+                <div style={styles.feedActionsRight}>
+                  <svg width={20} height={20} viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
+                    <circle cx="12" cy="12" r="2" />
+                    <circle cx="12" cy="5" r="2" />
+                    <circle cx="12" cy="19" r="2" />
+                  </svg>
                 </div>
               </div>
-              <div style={{ ...styles.feedImage, background: item.color }}>
-                <div style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 10 }}>
-                  <span style={{ display: 'inline-block', padding: '6px 14px', background: 'rgba(0,0,0,0.6)', borderRadius: 20, fontSize: '0.75rem', marginBottom: 10 }}>360</span>
+              <div style={{ ...styles.feedImage, background: item.color, position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 10 }}>
+                  <svg width={48} height={48} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.5} style={{ opacity: 0.8 }}>
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    <path d="M2 12h20" />
+                  </svg>
                 </div>
               </div>
               <div style={styles.feedActions}>
@@ -229,29 +247,70 @@ export default function Home() {
                 <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
                 </svg>
+                <div style={styles.feedActionsRight}>
+                  <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
               </div>
+              <div style={styles.feedLikeCount}>1,247 likes</div>
+              <div style={styles.feedCaption}>
+                <span style={styles.feedCaptionUser}>{item.author}</span>
+                Amazing 360 view from the Swiss Alps! 🏔️ #360 #travel #switzerland
+              </div>
+              <div style={styles.feedTime}>View all 23 comments · 2 hours ago</div>
             </div>
           ))}
         </div>
       )}
 
-      <nav style={styles.floatingNav}>
-        <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => setShowFeed(user ? true : false)}>
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        </svg>
-        <button style={styles.floatingBtn} onClick={() => { if (user) setShowUpload(true); else { setMode('signup'); setShowModal(true); } }}>
+      <div style={styles.topNav}>
+        <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Billabong, cursive' }}>OmniSee</span>
+        <div style={{ display: 'flex', gap: 16 }}>
           <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
-            <path d="M12 5v14M5 12h14" />
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
-        </button>
-        {user ? (
-          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { localStorage.removeItem('user'); setUser(null); setShowFeed(false); }}>
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
+        </div>
+      </div>
+
+      <nav style={styles.floatingNav}>
+        {showFeed ? (
+          <>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            </svg>
+            <button style={styles.floatingBtn} onClick={() => { if (user) setShowUpload(true); else { setMode('signup'); setShowModal(true); } }}>
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+            </svg>
+          </>
         ) : (
-          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
-          </svg>
+          <>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => setShowFeed(user ? true : false)}>
+              <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+            </svg>
+            <button style={styles.floatingBtn} onClick={() => { if (user) setShowUpload(true); else { setMode('signup'); setShowModal(true); } }}>
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+            {user ? (
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { localStorage.removeItem('user'); setUser(null); setShowFeed(false); }}>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+              </svg>
+            ) : (
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+              </svg>
+            )}
+          </>
         )}
       </nav>
 
