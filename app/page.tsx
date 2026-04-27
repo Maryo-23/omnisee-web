@@ -1,8 +1,19 @@
 'use client';
 import { useState, CSSProperties, useEffect } from 'react';
 
+const API = 'https://omnisee-backend.onrender.com';
+
 const styles: Record<string, CSSProperties> = {
-  container: { minHeight: '100vh', background: '#0F0F23', color: 'white', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' },
+  container: { minHeight: '100vh', background: 'linear-gradient(180deg, #0F0F23 0%, #1A1A2E 100%)', color: 'white', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' },
+  floatingNav: { position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 24, padding: '12px 32px', background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)', backdropFilter: 'blur(20px)', borderRadius: 50, border: '1px solid rgba(255,255,255,0.1)', zIndex: 50 },
+  floatingBtn: { width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', border: 'none', transition: 'transform 0.2s' },
+  feed: { padding: 20, marginTop: 60, marginBottom: 100 },
+  feedCard: { background: '#262630', borderRadius: 16, marginBottom: 20, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' },
+  feedHeader: { display: 'flex', alignItems: 'center', gap: 12, padding: 16 },
+  feedAvatar: { width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' },
+  feedImage: { width: '100%', aspectRatio: '1/1', background: 'linear-gradient(135deg, #1DA1F2, #0A66C2)' },
+  feedActions: { display: 'flex', gap: 16, padding: '12px 16px' },
+  feedIcon: { width: 24, height: 24, cursor: 'pointer' },
   hero: { position: 'relative', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   heroBg: { position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 20%, rgba(99,102,241,0.15) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(236,72,153,0.1) 0%, transparent 50%)' },
   heroGrid: { position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(99,102,241,0.15) 1px, transparent 1px)', backgroundSize: '60px 60px', opacity: 0.5 },
@@ -124,6 +135,8 @@ export default function Home() {
     }
   };
 
+  const [showFeed, setShowFeed] = useState(false);
+
   const featured = [
     { title: 'Swiss Alps', author: 'MountainLens', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
     { title: 'Tokyo Nights', author: 'UrbanView', color: 'linear-gradient(135deg, #7c3aed, #db2777)' },
@@ -144,67 +157,103 @@ export default function Home() {
 
   return (
     <div style={styles.container}>
-      <nav style={styles.nav}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-          <span style={{ fontWeight: 'bold', fontSize: '1.3rem' }}>OmniSee</span>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          {user ? (
-            <>
-              <button onClick={() => setShowUpload(true)} style={{ padding: '12px 24px', borderRadius: '30px', fontWeight: 500, cursor: 'pointer', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none' }}>Upload</button>
-              <button onClick={() => { localStorage.removeItem('user'); setUser(null); }} style={{ padding: '12px 24px', borderRadius: '30px', fontWeight: 500, cursor: 'pointer', background: 'transparent', color: '#A1A1AA', border: 'none' }}>Logout</button>
-            </>
-          ) : (
-            <>
-              <button style={{ padding: '12px 24px', borderRadius: '30px', fontWeight: 500, cursor: 'pointer', background: 'transparent', color: '#A1A1AA', border: 'none' }}>Explore</button>
-              <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ padding: '12px 24px', borderRadius: '30px', fontWeight: 500, cursor: 'pointer', background: 'white', color: '#0F0F23' }}>Get Started</button>
-            </>
-          )}
-        </div>
-      </nav>
-
-      <section style={styles.hero}>
-        <div style={styles.heroBg} />
-        <div style={styles.heroGrid} />
-        
-        <div style={styles.heroContent}>
-          <div style={styles.heroBadget}>
-            <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80' }} />
-            <span style={{ color: '#A1A1AA', fontSize: '0.9rem' }}>Join the spatial web</span>
-          </div>
+      {!showFeed && (
+        <section style={styles.hero}>
+          <div style={styles.heroBg} />
+          <div style={styles.heroGrid} />
           
-          <h1 style={styles.heroTitle}>
-            Your world in<br />
-            <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>OmniSee</span>
-          </h1>
-          
-          <p style={{ fontSize: 'clamp(1.1rem, 2vw, 1.4rem)', color: '#A1A1AA', marginBottom: '40px', maxWidth: '500px', margin: '0 auto 40px' }}>
-            Share immersive 360 experiences. Connect globally. Own your visual journey.
-          </p>
-          
-          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ ...styles.btn, ...styles.btnPrimary }}>
-              Get Started
-            </button>
-            {user ? (
-              <button onClick={() => setShowUpload(true)} style={{ ...styles.btn, ...styles.btnSecondary }}>
-                Upload
+          <div style={styles.heroContent}>
+            <div style={styles.heroBadget}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80' }} />
+              <span style={{ color: '#A1A1AA', fontSize: '0.9rem' }}>Join the spatial web</span>
+            </div>
+            
+            <h1 style={styles.heroTitle}>
+              Your world in<br />
+              <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>OmniSee</span>
+            </h1>
+            
+            <p style={{ fontSize: 'clamp(1.1rem, 2vw, 1.4rem)', color: '#A1A1AA', marginBottom: '40px', maxWidth: '500px', margin: '0 auto 40px' }}>
+              Share immersive 360 experiences. Connect globally. Own your visual journey.
+            </p>
+            
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ ...styles.btn, ...styles.btnPrimary }}>
+                Get Started
               </button>
-            ) : (
-              <button style={{ ...styles.btn, ...styles.btnSecondary }}>
-                View Showcase
-              </button>
-            )}
+              {user ? (
+                <button onClick={() => setShowFeed(true)} style={{ ...styles.btn, ...styles.btnSecondary }}>
+                  View Feed
+                </button>
+              ) : (
+                <button style={{ ...styles.btn, ...styles.btnSecondary }}>
+                  View Showcase
+                </button>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#71717A', opacity: 0.6 }}>
-          <span style={{ fontSize: '0.7rem', letterSpacing: '2px' }}>SCROLL</span>
-          <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path d="M12 5v14M5 12l7 7 7-7" />
+          <div style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, color: '#71717A', opacity: 0.6 }}>
+            <span style={{ fontSize: '0.7rem', letterSpacing: '2px' }}>SCROLL</span>
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+          </div>
+        </section>
+      )}
+
+      {showFeed && user && (
+        <div style={styles.feed}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: 20 }}>Feed</h2>
+          {featured.map((item, i) => (
+            <div key={i} style={styles.feedCard}>
+              <div style={styles.feedHeader}>
+                <div style={styles.feedAvatar} />
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{item.author}</div>
+                  <div style={{ color: '#A1A1AA', fontSize: '0.8rem' }}>2h ago</div>
+                </div>
+              </div>
+              <div style={{ ...styles.feedImage, background: item.color }}>
+                <div style={{ position: 'absolute', bottom: 20, left: 20, zIndex: 10 }}>
+                  <span style={{ display: 'inline-block', padding: '6px 14px', background: 'rgba(0,0,0,0.6)', borderRadius: 20, fontSize: '0.75rem', marginBottom: 10 }}>360</span>
+                </div>
+              </div>
+              <div style={styles.feedActions}>
+                <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
+                </svg>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <nav style={styles.floatingNav}>
+        <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => setShowFeed(user ? true : false)}>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        </svg>
+        <button style={styles.floatingBtn} onClick={() => { if (user) setShowUpload(true); else { setMode('signup'); setShowModal(true); } }}>
+          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
+            <path d="M12 5v14M5 12h14" />
           </svg>
-        </div>
-      </section>
+        </button>
+        {user ? (
+          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { localStorage.removeItem('user'); setUser(null); setShowFeed(false); }}>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+          </svg>
+        ) : (
+          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+          </svg>
+        )}
+      </nav>
 
       <section style={{ ...styles.section, background: 'rgba(26,26,46,0.3)' }}>
         <div style={{ textAlign: 'center', marginBottom: 50 }}>

@@ -3,8 +3,8 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'ViewSphere - 360° Social Media',
-  description: 'Share and view 360° photos and videos',
+  title: 'OmniSee - 360 Social',
+  description: 'Share immersive 360 experiences. Connect globally. Own your visual journey.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
