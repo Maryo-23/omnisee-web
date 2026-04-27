@@ -109,9 +109,9 @@ export default function Home() {
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
         setSuccess('Logged in successfully!');
-        setTimeout(() => { setShowModal(false); }, 1500);
+        setShowModal(false);
       } else {
-        setSuccess('Account created! You can now log in.');
+        setSuccess('Account created! Please sign in.');
         setMode('login');
       }
     } catch (err: any) {
