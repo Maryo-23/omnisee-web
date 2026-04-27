@@ -268,9 +268,8 @@ export default function Home() {
         <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Billabong, cursive' }}>OmniSee</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.1)', padding: '6px 12px', borderRadius: 20 }}>
-              <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }} />
-              <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{user.displayName || user.username}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', padding: '6px 16px', borderRadius: 20 }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>{user.displayName || user.username}</span>
             </div>
           ) : (
             <>
