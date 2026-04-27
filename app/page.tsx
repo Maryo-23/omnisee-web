@@ -475,7 +475,6 @@ export default function Home() {
                     <input type="file" accept="image/*" style={{ display: 'none' }} id="avatarInput" onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      setLoading(true);
                       const formData = new FormData();
                       formData.append('file', file);
                       try {
@@ -487,7 +486,6 @@ export default function Home() {
                           setSuccess('Profile picture updated!');
                         }
                       } catch { setError('Failed to upload'); }
-                      setLoading(false);
                     }} />
                     <label htmlFor="avatarInput" style={{ cursor: 'pointer' }}>
                       <img src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #0095F6' }} alt="" />
