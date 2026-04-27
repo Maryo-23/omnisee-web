@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #6366F1;
+  --secondary: #8B5CF6;
+  --accent: #EC4899;
+  --background: #0F0F23;
+  --surface: #1A1A2E;
+  --surface-light: #252542;
+  --border: #2D2D4A;
+  --text: #FFFFFF;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+.bg-background { background-color: var(--background); }
+.bg-surface { background-color: var(--surface); }
+.bg-surface-30 { background-color: rgba(26, 26, 46, 0.3); }
+.bg-surface-50 { background-color: rgba(26, 26, 46, 0.5); }
+.bg-surface-60 { background-color: rgba(26, 26, 46, 0.6); }
+.bg-black-80 { background-color: rgba(0, 0, 0, 0.8); }
+.bg-white { background-color: white; }
+.bg-white-10 { background-color: rgba(255, 255, 255, 0.1); }
+.bg-white-20 { background-color: rgba(255, 255, 255, 0.2); }
+.bg-green-400 { background-color: #4ade80; }
+.bg-primary { background-color: var(--primary); }
+
+.text-white { color: var(--text); }
+.text-textSecondary { color: var(--text-secondary); }
+.text-textMuted { color: var(--text-muted); }
+.text-background { color: var(--background); }
+.text-primary { color: var(--primary); }
+
+.border-border { border-color: var(--border); }
+.border-border-30 { border-color: rgba(45, 45, 74, 0.3); }
+.border-border-50 { border-color: rgba(45, 45, 74, 0.5); }
+.border-white-20 { border-color: rgba(255, 255, 255, 0.2); }
+.border-primary-30 { border-color: rgba(99, 102, 241, 0.3); }
+.border-primary-50 { border-color: rgba(99, 102, 241, 0.5); }
+
+.shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+.shadow-primary-25 { box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25); }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30px); }
+}
+.animate-float { animation: float 8s ease-in-out infinite; }
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+.animate-bounce { animation: bounce 1s infinite; }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.backdrop-blur-md { backdrop-filter: blur(12px); }
+.bg-clip-text { -webkit-background-clip: text; background-clip: text; }
+
+input:focus { outline: none; border-color: var(--primary); }
+button { cursor: pointer; font-family: inherit; border: none; }
+
+.hover-scale-105:hover { transform: scale(1.05); }
+.hover-text-white:hover { color: var(--text); }
+
+.transition { transition: all 0.3s ease; }
+.cursor-pointer { cursor: pointer; }
