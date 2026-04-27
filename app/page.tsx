@@ -121,7 +121,7 @@ export default function Home() {
         setLoading(false);
         return;
       }
-      
+
       const endpoint = mode === 'signup' ? '/api/register' : '/api/login';
       const body = mode === 'signup' 
         ? { username, email, password, displayName: username }
@@ -298,7 +298,12 @@ export default function Home() {
         <div style={{ paddingTop: 60, paddingBottom: 100 }}>
           <div style={{ padding: '20px 20px 0', borderBottom: `1px solid ${darkMode ? '#262626' : '#DBDBDB'}`, marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, maxWidth: 470, margin: '0 auto' }}>
-              <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }} alt="" />
+              <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setMode('editprofile'); setShowModal(true); }}>
+                <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }} alt="" />
+                <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#0095F6', borderRadius: '50%', padding: 4 }}>
+                  <svg width={12} height={12} viewBox="0 0 24 24" fill="white"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
+                </div>
+              </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', gap: 20, textAlign: 'center' }}>
                   <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>posts</div></div>
@@ -457,17 +462,11 @@ export default function Home() {
               {mode === 'signup' ? 'Join OmniSee' : mode === 'changepassword' ? 'Change Password' : mode === 'editprofile' ? 'Edit Profile' : 'Welcome Back'}
             </h3>
             <form onSubmit={handleSubmit}>
-              {mode === 'editprofile' ? (
+{mode === 'editprofile' ? (
                 <>
-                  <input style={styles.input} name="displayName" placeholder="Display Name" defaultValue={user?.displayName || ''} />
-                  <input style={styles.input} name="bio" placeholder="Bio" defaultValue={user?.bio || ''} />
-                  <p style={{ color: '#A1A1AA', fontSize: '0.8rem', marginBottom: 16, textAlign: 'center' }}>To change profile picture, use a service like Imgur and paste the URL below:</p>
-                  <input style={styles.input} name="avatarUrl" placeholder="Profile Picture URL" defaultValue={user?.avatar_url || ''} />
-                </>
-              ) : mode === 'changepassword' ? (
-                <>
-                  <input style={styles.input} name="oldPassword" placeholder="Current Password" type="password" required />
-                  <input style={styles.input} name="newPassword" placeholder="New Password" type="password" required />
+                  <input style={styles.input} name="displayName" placeholder="Name (optional)" defaultValue={user?.display_name || ''} />
+                  <textarea style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} name="bio" placeholder="Bio" defaultValue={user?.bio || ''} />
+                  <input style={styles.input} name="avatarUrl" placeholder="Profile picture URL (optional)" defaultValue={user?.avatar_url || ''} />
                 </>
               ) : (
                 <>
