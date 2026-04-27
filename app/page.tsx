@@ -475,17 +475,14 @@ export default function Home() {
                     <input type="file" accept="image/*" style={{ display: 'none' }} id="avatarInput" onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      const formData = new FormData();
-                      formData.append('file', file);
-                      try {
-                        const res = await fetch('https://api.imgbb.com/1/upload?key=d36eb6591370ae7f9089d85875571358', { method: 'POST', body: formData });
-                        const data = await res.json();
-                        if (data.data?.url) {
-                          setUser({ ...user, avatar_url: data.data.url });
-                          localStorage.setItem('user', JSON.stringify({ ...user, avatar_url: data.data.url }));
-                          setSuccess('Profile picture updated!');
-                        }
-                      } catch { setError('Failed to upload'); }
+                      const reader = new FileReader();
+                      reader.onload = async () => {
+                        const base64 = reader.result as string;
+                        setUser({ ...user, avatar_url: base64 });
+                        localStorage.setItem('user', JSON.stringify({ ...user, avatar_url: base64 }));
+                        setSuccess('Profile picture updated!');
+                      };
+                      reader.readAsDataURL(file);
                     }} />
                     <label htmlFor="avatarInput" style={{ cursor: 'pointer' }}>
                       <img src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #0095F6' }} alt="" />
