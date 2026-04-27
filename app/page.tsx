@@ -49,7 +49,7 @@ const styles: Record<string, any> = {
 };
 
 export default function Home() {
-  const [mode, setMode] = useState<'signup'|'login'|'changepassword'>('signup');
+  const [mode, setMode] = useState<'signup'|'login'|'changepassword'|'editprofile'>('signup');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -98,6 +98,26 @@ export default function Home() {
         if (!res.ok) throw new Error(data.error || 'Something went wrong');
         setSuccess('Password changed successfully!');
         setTimeout(() => { setShowModal(false); setMode('login'); }, 2000);
+        setLoading(false);
+        return;
+      }
+
+      if (mode === 'editprofile') {
+        const displayName = (form.elements.namedItem('displayName') as HTMLInputElement).value;
+        const bio = (form.elements.namedItem('bio') as HTMLInputElement).value;
+        const avatarUrl = (form.elements.namedItem('avatarUrl') as HTMLInputElement).value;
+        const res = await fetch('https://omnisee-backend.onrender.com/api/users/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, displayName, bio, avatarUrl }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong');
+        const updatedUser = { ...user, display_name: displayName, bio, avatar_url: avatarUrl };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        setSuccess('Profile updated!');
+        setTimeout(() => { setShowModal(false); }, 1500);
         setLoading(false);
         return;
       }
@@ -278,7 +298,7 @@ export default function Home() {
         <div style={{ paddingTop: 60, paddingBottom: 100 }}>
           <div style={{ padding: '20px 20px 0', borderBottom: `1px solid ${darkMode ? '#262626' : '#DBDBDB'}`, marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, maxWidth: 470, margin: '0 auto' }}>
-              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }} alt="" />
+              <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }} alt="" />
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', gap: 20, textAlign: 'center' }}>
                   <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>posts</div></div>
@@ -288,14 +308,15 @@ export default function Home() {
               </div>
             </div>
             <div style={{ maxWidth: 470, margin: '20px auto 0' }}>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{user.displayName || user.username}</div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{user.display_name || user.displayName || user.username}</div>
               <div style={{ fontSize: '0.9rem', color: secondaryText }}>@{user.username}</div>
+              {user.bio && <div style={{ marginTop: 12, fontSize: '0.95rem' }}>{user.bio}</div>}
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                 <button 
-                  onClick={() => { setMode('changepassword'); setShowModal(true); }}
+                  onClick={() => { setMode('editprofile'); setShowModal(true); }}
                   style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${darkMode ? '#262626' : '#DBDBDB'}`, background: 'transparent', color: textColor, cursor: 'pointer', fontSize: '0.85rem' }}
                 >
-                  Change Password
+                  Edit Profile
                 </button>
                 <button 
                   onClick={() => { localStorage.removeItem('user'); setUser(null); setView('feed'); }}
@@ -328,7 +349,8 @@ export default function Home() {
               onClick={() => setView(view === 'feed' ? 'profile' : 'feed')}
               style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', padding: '6px 16px', borderRadius: 20 }}
             >
-              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>{user.displayName || user.username}</span>
+              <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 24, height: 24, borderRadius: '50%' }} alt="" />
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>{user.display_name || user.displayName || user.username}</span>
             </div>
           ) : (
             <>
@@ -432,10 +454,17 @@ export default function Home() {
         <div style={styles.modal} onClick={() => setShowModal(false)}>
           <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30 }}>
-              {mode === 'signup' ? 'Join OmniSee' : mode === 'changepassword' ? 'Change Password' : 'Welcome Back'}
+              {mode === 'signup' ? 'Join OmniSee' : mode === 'changepassword' ? 'Change Password' : mode === 'editprofile' ? 'Edit Profile' : 'Welcome Back'}
             </h3>
             <form onSubmit={handleSubmit}>
-              {mode === 'changepassword' ? (
+              {mode === 'editprofile' ? (
+                <>
+                  <input style={styles.input} name="displayName" placeholder="Display Name" defaultValue={user?.displayName || ''} />
+                  <input style={styles.input} name="bio" placeholder="Bio" defaultValue={user?.bio || ''} />
+                  <p style={{ color: '#A1A1AA', fontSize: '0.8rem', marginBottom: 16, textAlign: 'center' }}>To change profile picture, use a service like Imgur and paste the URL below:</p>
+                  <input style={styles.input} name="avatarUrl" placeholder="Profile Picture URL" defaultValue={user?.avatar_url || ''} />
+                </>
+              ) : mode === 'changepassword' ? (
                 <>
                   <input style={styles.input} name="oldPassword" placeholder="Current Password" type="password" required />
                   <input style={styles.input} name="newPassword" placeholder="New Password" type="password" required />
@@ -450,7 +479,7 @@ export default function Home() {
               {error && <p style={{ color: '#ef4444', marginBottom: 16 }}>{error}</p>}
               {success && <p style={{ color: '#4ade80', marginBottom: 16 }}>{success}</p>}
               <button type="submit" disabled={loading} style={{ ...styles.btn, width: '100%', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', marginTop: 10 }}>
-                {loading ? 'Please wait...' : (mode === 'signup' ? 'Create Account' : mode === 'changepassword' ? 'Change Password' : 'Sign In')}
+                {loading ? 'Please wait...' : (mode === 'signup' ? 'Create Account' : mode === 'changepassword' ? 'Change Password' : mode === 'editprofile' ? 'Save Profile' : 'Sign In')}
               </button>
               <p style={{ textAlign: 'center', color: '#71717A', fontSize: '0.85rem', marginTop: 24 }}>
                 {mode === 'signup' ? 'Create an account to get started' : mode === 'changepassword' ? 'Change your password' : 'Welcome back!'}
