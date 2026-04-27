@@ -57,7 +57,7 @@ export default function Home() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'feed'|'profile'>('feed');
 
   const isDark = darkMode;
