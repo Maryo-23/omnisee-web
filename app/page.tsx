@@ -103,7 +103,7 @@ export default function Home() {
       }
 
       if (mode === 'editprofile') {
-        const displayName = (form.elements.namedItem('displayName') as HTMLInputElement).value;
+        const displayName = (form.elements.namedItem('name') as HTMLInputElement).value;
         const bio = (form.elements.namedItem('bio') as HTMLInputElement).value;
         const avatarUrl = (form.elements.namedItem('avatarUrl') as HTMLInputElement).value;
         const res = await fetch('https://omnisee-backend.onrender.com/api/users/update-profile', {
@@ -313,9 +313,10 @@ export default function Home() {
               </div>
             </div>
             <div style={{ maxWidth: 470, margin: '20px auto 0' }}>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{user.display_name || user.displayName || user.username}</div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{user.display_name || user.username}</div>
               <div style={{ fontSize: '0.9rem', color: secondaryText }}>@{user.username}</div>
               {user.bio && <div style={{ marginTop: 12, fontSize: '0.95rem' }}>{user.bio}</div>}
+              {user.display_name && <div style={{ marginTop: 8, fontSize: '0.9rem', color: secondaryText }}>{user.display_name}</div>}
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                 <button 
                   onClick={() => { setMode('editprofile'); setShowModal(true); }}
@@ -464,9 +465,31 @@ export default function Home() {
             <form onSubmit={handleSubmit}>
 {mode === 'editprofile' ? (
                 <>
-                  <input style={styles.input} name="displayName" placeholder="Name (optional)" defaultValue={user?.display_name || ''} />
+                  <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                    <input type="file" accept="image/*" style={{ display: 'none' }} id="avatarInput" onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setLoading(true);
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      try {
+                        const res = await fetch('https://api.imgbb.com/1/upload?key=d36eb6591370ae7f9089d85875571358', { method: 'POST', body: formData });
+                        const data = await res.json();
+                        if (data.data?.url) {
+                          setUser({ ...user, avatar_url: data.data.url });
+                          localStorage.setItem('user', JSON.stringify({ ...user, avatar_url: data.data.url }));
+                          setSuccess('Profile picture updated!');
+                        }
+                      } catch { setError('Failed to upload'); }
+                      setLoading(false);
+                    }} />
+                    <label htmlFor="avatarInput" style={{ cursor: 'pointer' }}>
+                      <img src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #0095F6' }} alt="" />
+                      <div style={{ color: '#0095F6', fontSize: '0.85rem', marginTop: 8 }}>Change profile photo</div>
+                    </label>
+                  </div>
+                  <input style={styles.input} name="name" placeholder="Name (optional)" defaultValue={user?.display_name || ''} />
                   <textarea style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} name="bio" placeholder="Bio" defaultValue={user?.bio || ''} />
-                  <input style={styles.input} name="avatarUrl" placeholder="Profile picture URL (optional)" defaultValue={user?.avatar_url || ''} />
                 </>
               ) : (
                 <>
