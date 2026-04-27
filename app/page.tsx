@@ -274,6 +274,46 @@ export default function Home() {
         </div>
       )}
 
+      {view === 'profile' && user && (
+        <div style={{ paddingTop: 60, paddingBottom: 100 }}>
+          <div style={{ padding: '20px 20px 0', borderBottom: `1px solid ${darkMode ? '#262626' : '#DBDBDB'}`, marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, maxWidth: 470, margin: '0 auto' }}>
+              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }} alt="" />
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', gap: 20, textAlign: 'center' }}>
+                  <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>posts</div></div>
+                  <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>followers</div></div>
+                  <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>following</div></div>
+                </div>
+              </div>
+            </div>
+            <div style={{ maxWidth: 470, margin: '20px auto 0' }}>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{user.displayName || user.username}</div>
+              <div style={{ fontSize: '0.9rem', color: secondaryText }}>@{user.username}</div>
+              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+                <button 
+                  onClick={() => { setMode('changepassword'); setShowModal(true); }}
+                  style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${darkMode ? '#262626' : '#DBDBDB'}`, background: 'transparent', color: textColor, cursor: 'pointer', fontSize: '0.85rem' }}
+                >
+                  Change Password
+                </button>
+                <button 
+                  onClick={() => { localStorage.removeItem('user'); setUser(null); setView('feed'); }}
+                  style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#ef4444', color: 'white', cursor: 'pointer', fontSize: '0.85rem' }}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, maxWidth: 470, margin: '0 auto' }}>
+            {featured.slice(0, 6).map((item, i) => (
+              <div key={i} style={{ aspectRatio: '1/1', background: item.color, cursor: 'pointer' }} />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={styles.topNav(darkMode)}>
         <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Billabong, cursive' }}>OmniSee</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
