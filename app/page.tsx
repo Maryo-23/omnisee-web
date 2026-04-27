@@ -3,25 +3,24 @@ import { useState, CSSProperties, useEffect } from 'react';
 
 const API = 'https://omnisee-backend.onrender.com';
 
-const styles: Record<string, CSSProperties> = {
-  container: { minHeight: '100vh', background: 'linear-gradient(180deg, #000000 0%, #121212 100%)', color: 'white', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' },
-  topNav: { position: 'fixed', top: 0, left: 0, right: 0, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' },
-  floatingNav: { position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 24, padding: '12px 32px', background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)', backdropFilter: 'blur(20px)', borderRadius: 50, border: '1px solid rgba(255,255,255,0.1)', zIndex: 50 },
-  floatingBtn: { width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', border: 'none', transition: 'transform 0.2s' },
+const styles: Record<string, any> = {
+  container: (isDark: boolean) => ({ minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' }),
+  topNav: (isDark: boolean) => ({ position: 'fixed', top: 0, left: 0, right: 0, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, background: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderBottom: `1px solid ${isDark ? '#262626' : '#DBDBDB'}` }),
+  floatingNav: (isDark: boolean) => ({ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 24, padding: '12px 32px', background: isDark ? 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%)', backdropFilter: 'blur(20px)', borderRadius: 50, border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`, zIndex: 50 }),
   feed: { padding: 0, marginTop: 50, marginBottom: 80, maxWidth: 470, margin: '50px auto 80px' },
-  feedCard: { background: '#000000', marginBottom: 12, border: '1px solid #262626' },
+  feedCard: (isDark: boolean) => ({ background: isDark ? '#000000' : '#FFFFFF', marginBottom: 12, border: `1px solid ${isDark ? '#262626' : '#DBDBDB'}` }),
   feedHeader: { display: 'flex', alignItems: 'center', gap: 12, padding: 14 },
   feedAvatar: { width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', objectFit: 'cover' },
   feedUsername: { fontWeight: 600, fontSize: '0.9rem' },
-  feedLocation: { fontSize: '0.75rem', color: '#A8A8A8' },
+  feedLocation: (isDark: boolean) => ({ fontSize: '0.75rem', color: isDark ? '#A8A8A8' : '#8E8E8E' }),
   feedImage: { width: '100%', aspectRatio: '1/1', background: 'linear-gradient(135deg, #1DA1F2, #0A66C2)' },
   feedActions: { display: 'flex', gap: 16, padding: '12px 14px' },
-  feedIcon: { width: 24, height: 24, cursor: 'pointer', color: 'white' },
+  feedIcon: (isDark: boolean) => ({ width: 24, height: 24, cursor: 'pointer', color: isDark ? 'white' : '#262626' }),
   feedActionsRight: { marginLeft: 'auto', display: 'flex', gap: 12 },
   feedLikeCount: { fontWeight: 600, fontSize: '0.9rem', padding: '0 14px' },
   feedCaption: { padding: '0 14px 14px', fontSize: '0.9rem' },
   feedCaptionUser: { fontWeight: 600, marginRight: 6 },
-  feedTime: { padding: '0 14px 14px', fontSize: '0.75rem', color: '#A8A8A8' },
+  feedTime: (isDark: boolean) => ({ padding: '0 14px 14px', fontSize: '0.75rem', color: isDark ? '#A8A8A8' : '#8E8E8E' }),
   hero: { position: 'relative', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   heroBg: { position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 20%, rgba(99,102,241,0.15) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(236,72,153,0.1) 0%, transparent 50%)' },
   heroGrid: { position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(99,102,241,0.15) 1px, transparent 1px)', backgroundSize: '60px 60px', opacity: 0.5 },
@@ -58,6 +57,17 @@ export default function Home() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  const [view, setView] = useState<'feed'|'profile'>('feed');
+
+  const isDark = darkMode;
+  const containerStyle = { minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' };
+  const topNavStyle = { position: 'fixed' as const, top: 0, left: 0, right: 0, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, background: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderBottom: `1px solid ${isDark ? '#262626' : '#DBDBDB'}` };
+  const floatingNavStyle = { position: 'fixed' as const, bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 24, padding: '12px 32px', background: isDark ? 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.8) 100%)', backdropFilter: 'blur(20px)', borderRadius: 50, border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`, zIndex: 50 };
+  const feedCardStyle = { background: isDark ? '#000000' : '#FFFFFF', marginBottom: 12, border: `1px solid ${isDark ? '#262626' : '#DBDBDB'}` };
+  const feedIconStyle = { width: 24, height: 24, cursor: 'pointer' as const, color: isDark ? 'white' : '#262626' };
+  const textColor = isDark ? 'white' : '#262626';
+  const secondaryText = isDark ? '#A8A8A8' : '#8E8E8E';
 
   useEffect(() => {
     const saved = localStorage.getItem('user');
@@ -164,8 +174,8 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div style={styles.container}>
-      {!showFeed && (
+    <div style={styles.container(darkMode)}>
+      {view !== 'feed' && !showFeed && (
         <section style={styles.hero}>
           <div style={styles.heroBg} />
           <div style={styles.heroGrid} />
@@ -210,15 +220,15 @@ export default function Home() {
         </section>
       )}
 
-      {showFeed && (
+      {view === 'feed' && (
         <div style={styles.feed}>
           {featured.map((item, i) => (
-            <div key={i} style={styles.feedCard}>
+            <div key={i} style={styles.feedCard(darkMode)}>
               <div style={styles.feedHeader}>
                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`} style={styles.feedAvatar} alt="" />
                 <div>
                   <div style={styles.feedUsername}>{item.author}</div>
-                  <div style={styles.feedLocation}>Switzerland</div>
+                  <div style={styles.feedLocation(darkMode)}>Switzerland</div>
                 </div>
                 <div style={styles.feedActionsRight}>
                   <svg width={20} height={20} viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
@@ -238,17 +248,17 @@ export default function Home() {
                 </div>
               </div>
               <div style={styles.feedActions}>
-                <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
-                <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
-                <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
                 </svg>
                 <div style={styles.feedActionsRight}>
-                  <svg style={styles.feedIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                   </svg>
                 </div>
@@ -258,28 +268,34 @@ export default function Home() {
                 <span style={styles.feedCaptionUser}>{item.author}</span>
                 Amazing 360 view from the Swiss Alps! 🏔️ #360 #travel #switzerland
               </div>
-              <div style={styles.feedTime}>View all 23 comments · 2 hours ago</div>
+              <div style={styles.feedTime(darkMode)}>View all 23 comments · 2 hours ago</div>
             </div>
           ))}
         </div>
       )}
 
-      <div style={styles.topNav}>
+      <div style={styles.topNav(darkMode)}>
         <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Billabong, cursive' }}>OmniSee</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button 
+            onClick={() => setDarkMode(!darkMode)}
+            style={{ padding: '8px 12px', borderRadius: 8, border: 'none', background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', color: textColor, cursor: 'pointer', fontSize: '0.85rem' }}
+          >
+            {darkMode ? 'Light' : 'Dark'}
+          </button>
           {user ? (
             <div 
-              onClick={() => setShowFeed(false)}
+              onClick={() => setView(view === 'feed' ? 'profile' : 'feed')}
               style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', padding: '6px 16px', borderRadius: 20 }}
             >
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>{user.displayName || user.username}</span>
             </div>
           ) : (
             <>
-              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth={2}>
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth={2}>
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
             </>
@@ -287,8 +303,8 @@ export default function Home() {
         </div>
       </div>
 
-      <nav style={styles.floatingNav}>
-        {showFeed ? (
+      <nav style={styles.floatingNav(darkMode)}>
+        {view === 'feed' ? (
           <>
             <svg width={24} height={24} viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -304,23 +320,17 @@ export default function Home() {
           </>
         ) : (
           <>
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => setShowFeed(user ? true : false)}>
-              <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => setView('feed')}>
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             </svg>
             <button style={styles.floatingBtn} onClick={() => { if (user) setShowUpload(true); else { setMode('signup'); setShowModal(true); } }}>
               <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}>
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </button>
-            {user ? (
-              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { localStorage.removeItem('user'); setUser(null); setShowFeed(false); }}>
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
-              </svg>
-            ) : (
-              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
-              </svg>
-            )}
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+            </svg>
           </>
         )}
       </nav>
