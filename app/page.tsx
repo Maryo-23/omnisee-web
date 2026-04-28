@@ -399,7 +399,7 @@ export default function Home() {
       <nav style={styles.floatingNav(darkMode)}>
         {view === 'feed' ? (
           <>
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth={2} style={{ cursor: 'pointer' }}>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={darkMode ? 'white' : '#8B5CF6'} strokeWidth={2} style={{ cursor: 'pointer' }}>
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             </svg>
             <button style={styles.floatingBtn} onClick={() => { if (user) setShowUpload(true); else { setMode('signup'); setShowModal(true); } }}>
@@ -407,13 +407,13 @@ export default function Home() {
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </button>
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={darkMode ? 'white' : '#8B5CF6'} strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
             </svg>
           </>
         ) : (
           <>
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => setView('feed')}>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={darkMode ? 'white' : '#8B5CF6'} strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => setView('feed')}>
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             </svg>
             <button style={styles.floatingBtn} onClick={() => { if (user) setShowUpload(true); else { setMode('signup'); setShowModal(true); } }}>
@@ -421,7 +421,7 @@ export default function Home() {
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </button>
-            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
+            <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={darkMode ? 'white' : '#8B5CF6'} strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => { setMode('login'); setShowModal(true); }}>
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
             </svg>
           </>
