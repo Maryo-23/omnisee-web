@@ -101,7 +101,8 @@ export default function Home() {
   useEffect(() => {
     const saved = localStorage.getItem('user');
     if (saved) {
-      setUser(JSON.parse(saved));
+      const savedUser = JSON.parse(saved);
+      setUser(savedUser);
       setView('feed');
     } else {
       setShowModal(true);
@@ -111,6 +112,10 @@ export default function Home() {
     if (savedFollowing) setFollowing(JSON.parse(savedFollowing));
     fetchPosts();
   }, []);
+
+  useEffect(() => {
+    if (user) fetchPosts();
+  }, [user?.id]);
 
   const fetchPosts = async () => {
     try {
@@ -176,6 +181,7 @@ export default function Home() {
         const userToSave = { ...data.user, username: existingUsername || data.user.username };
         localStorage.setItem('user', JSON.stringify(userToSave));
         setUser(userToSave);
+        fetchPosts();
         setSuccess('Logged in successfully!');
         setShowModal(false);
       } else {
@@ -214,7 +220,7 @@ export default function Home() {
       setUploadCaption('');
       setSelectedFile(null);
       fetchPosts();
-      setTimeout(() => setShowUpload(false), 1500);
+      setTimeout(() => { setShowUpload(false); setView('profile'); }, 1500);
     } catch (err: any) {
       setError(err.message);
     } finally {
