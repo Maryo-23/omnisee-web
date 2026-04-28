@@ -205,7 +205,7 @@ export default function Home() {
 
   return (
     <div style={styles.container(darkMode)}>
-      {view !== 'feed' && !showFeed && (
+      {!user && view !== 'profile' && (
         <section style={styles.hero}>
           <div style={styles.heroBg} />
           <div style={styles.heroGrid} />
