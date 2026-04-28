@@ -64,6 +64,10 @@ export default function Home() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'feed'|'profile'>('feed');
+  const [albums, setAlbums] = useState<{id: string, name: string, cover: string, photos: string[]}[]>([]);
+  const [showAlbumModal, setShowAlbumModal] = useState(false);
+  const [newAlbumName, setNewAlbumName] = useState('');
+  const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
 
   const isDark = darkMode;
   const containerStyle = { minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' };
@@ -328,6 +332,32 @@ export default function Home() {
                 </button>
               </div>
             </div>
+          </div>
+          <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontWeight: 600 }}>Albums</h3>
+              <button 
+                onClick={() => setShowAlbumModal(true)}
+                style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#0095F6', color: 'white', cursor: 'pointer', fontSize: '0.8rem' }}
+              >
+                + New Album
+              </button>
+            </div>
+            {albums.length === 0 ? (
+              <p style={{ color: secondaryText, fontSize: '0.9rem' }}>No albums yet. Create one to organize your photos!</p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
+                {albums.map((album, i) => (
+                  <div 
+                    key={i} 
+                    onClick={() => setSelectedAlbum(i)}
+                    style={{ aspectRatio: '1/1', background: album.cover || '#262626', cursor: 'pointer', position: 'relative' }}
+                  >
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', fontSize: '0.75rem', fontWeight: 600 }}>{album.name}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, maxWidth: 470, margin: '0 auto' }}>
             {featured.slice(0, 6).map((item, i) => (
@@ -659,6 +689,75 @@ export default function Home() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showAlbumModal && (
+        <div style={styles.modal} onClick={() => setShowAlbumModal(false)}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: 20, color: isDark ? 'white' : '#262626' }}>Create Album</h3>
+            <input 
+              style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} 
+              placeholder="Album name" 
+              value={newAlbumName}
+              onChange={(e) => setNewAlbumName(e.target.value)}
+            />
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button 
+                onClick={() => {
+                  if (!newAlbumName.trim()) return;
+                  setAlbums([...albums, { id: Date.now().toString(), name: newAlbumName, cover: '', photos: [] }]);
+                  setNewAlbumName('');
+                  setShowAlbumModal(false);
+                }}
+                style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Create
+              </button>
+              <button 
+                onClick={() => { setShowAlbumModal(false); setNewAlbumName(''); }}
+                style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedAlbum !== null && albums[selectedAlbum] && (
+        <div style={styles.modal} onClick={() => setSelectedAlbum(null)}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: isDark ? 'white' : '#262626' }}>{albums[selectedAlbum].name}</h3>
+              <button 
+                onClick={() => {
+                  const newAlbums = [...albums];
+                  newAlbums.splice(selectedAlbum, 1);
+                  setAlbums(newAlbums);
+                  setSelectedAlbum(null);
+                }}
+                style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#ef4444', color: 'white', cursor: 'pointer', fontSize: '0.8rem' }}
+              >
+                Delete
+              </button>
+            </div>
+            {albums[selectedAlbum].photos.length === 0 ? (
+              <p style={{ color: secondaryText, textAlign: 'center', padding: '40px 0' }}>No photos in this album yet.</p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
+                {albums[selectedAlbum].photos.map((photo, i) => (
+                  <div key={i} style={{ aspectRatio: '1/1', background: `url(${photo}) center/cover` }} />
+                ))}
+              </div>
+            )}
+            <button 
+              onClick={() => setSelectedAlbum(null)}
+              style={{ marginTop: 20, width: '100%', padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
