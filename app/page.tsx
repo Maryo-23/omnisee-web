@@ -46,6 +46,7 @@ const styles: Record<string, any> = {
   nav: { position: 'fixed', top: 0, left: 0, right: 0, padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, transition: 'all 0.3s' },
   logo: { display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 'bold', fontSize: '1.3rem' },
   navBtn: { padding: '12px 24px', borderRadius: '30px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.3s' },
+  floatingBtn: { width: 44, height: 44, borderRadius: '50%', border: 'none', background: '#FFD700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' },
 };
 
 export default function Home() {
