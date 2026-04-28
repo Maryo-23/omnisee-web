@@ -333,6 +333,27 @@ export default function Home() {
             </div>
           </div>
           <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px', background: isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)', borderRadius: 12, marginBottom: 20 }}>
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth={2}>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Federated</div>
+                <div style={{ fontSize: '0.75rem', color: secondaryText }}>Your AT Protocol address:</div>
+                <div style={{ fontSize: '0.75rem', color: '#8B5CF6', fontFamily: 'monospace' }}>@{user?.username}@omnisee.app</div>
+              </div>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://omnisee.app/ap/users/${user?.username}`);
+                }}
+                style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#8B5CF6', color: 'white', cursor: 'pointer', fontSize: '0.75rem' }}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+          <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ fontWeight: 600 }}>Albums</h3>
               <button 
