@@ -648,10 +648,13 @@ export default function Home() {
                   {selectedTags.map((tag, i) => {
                     const topic = customTopics.find(t => t.id === tag || t.name.toLowerCase() === tag.toLowerCase());
                     return (
-                      <span key={i} style={{ padding: '4px 10px', background: '#8B5CF6', borderRadius: 12, fontSize: '0.8rem', color: 'white', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        #{tag}
-                        <button type="button" onClick={() => setSelectedTags(selectedTags.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>×</button>
-                      </span>
+                      <div key={i} style={{ padding: '4px 10px', background: '#8B5CF6', borderRadius: 12, color: 'white' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>#{tag}</span>
+                          <button type="button" onClick={() => setSelectedTags(selectedTags.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>×</button>
+                        </div>
+                        {topic?.description && <div style={{ fontSize: '0.65rem', opacity: 0.9, marginTop: 2 }}>{topic.description}</div>}
+                      </div>
                     );
                   })}
                 </div>
