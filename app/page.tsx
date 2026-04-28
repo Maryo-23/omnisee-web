@@ -71,6 +71,14 @@ export default function Home() {
   const [notifications, setNotifications] = useState<string[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const userPosts = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
+  
+  const deletePost = async (postId: string) => {
+    if (!confirm('Delete this post?')) return;
+    try {
+      await fetch(`https://omnisee-backend.onrender.com/api/posts/${postId}`, { method: 'DELETE' });
+      fetchPosts();
+    } catch (err) { console.error(err); }
+  };
   const [following, setFollowing] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -384,12 +392,17 @@ export default function Home() {
           <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
             <h3 style={{ fontWeight: 600, marginBottom: 16 }}>Posts</h3>
             {userPosts.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, position: 'relative' }}>
                 {userPosts.map((post, i) => (
                   <div 
                     key={i} 
-                    style={{ aspectRatio: '1/1', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', cursor: 'pointer' }}
-                  />
+                    onClick={() => deletePost(post.id)}
+                    style={{ aspectRatio: '1/1', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', cursor: 'pointer', position: 'relative' }}
+                  >
+                    <div style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.5)', borderRadius: '50%', padding: 4 }}>
+                      <svg width={16} height={16} viewBox="0 0 24 24" fill="white"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
