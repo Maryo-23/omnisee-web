@@ -232,15 +232,15 @@ export default function Home() {
             </p>
             
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ ...styles.btn(isDark), ...styles.btnPrimary(isDark) }}>
+              <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ padding: '18px 36px', borderRadius: '50px', fontWeight: 600, fontSize: '1.1rem', border: 'none', background: '#262626', color: 'white' }}>
                 Get Started
               </button>
               {user ? (
-                <button onClick={() => setShowFeed(true)} style={{ ...styles.btn(isDark), ...styles.btnSecondary(isDark) }}>
+                <button onClick={() => setShowFeed(true)} style={{ padding: '18px 36px', borderRadius: '50px', fontWeight: 600, fontSize: '1.1rem', border: '2px solid #262626', background: 'white', color: '#262626' }}>
                   View Feed
                 </button>
               ) : (
-                <button onClick={() => { setMode('login'); setShowModal(true); }} style={{ ...styles.btn(isDark), ...styles.btnSecondary(isDark) }}>
+                <button onClick={() => { setMode('login'); setShowModal(true); }} style={{ padding: '18px 36px', borderRadius: '50px', fontWeight: 600, fontSize: '1.1rem', border: '2px solid #262626', background: 'white', color: '#262626' }}>
                   Sign In
                 </button>
               )}
