@@ -536,6 +536,7 @@ export default function Home() {
                     <label style={{ fontSize: '0.85rem', color: secondaryText, display: 'block', marginBottom: 8 }}>Custom Domain (optional)</label>
                     <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="customDomain" placeholder="andrew.com" value={user?.customDomain || ''} onChange={(e) => setUser(user ? { ...user, customDomain: e.target.value } : null)} />
                     <p style={{ fontSize: '0.75rem', color: '#8B5CF6', marginTop: 4 }}>Your profile will be at @{user?.username}@yourdomain.com</p>
+                    <p style={{ fontSize: '0.7rem', color: secondaryText, marginTop: 4 }}>Supports ActivityPub for Mastodon/PixelFed</p>
                   </div>
                 </>
               ) : (
