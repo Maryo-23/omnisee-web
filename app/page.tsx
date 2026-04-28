@@ -70,6 +70,7 @@ export default function Home() {
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [notifications, setNotifications] = useState<string[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
+  const userPosts = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
   const [following, setFollowing] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -307,7 +308,7 @@ export default function Home() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', gap: 20, textAlign: 'center' }}>
-                  <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>{posts.filter(p => p.user_id === user?.id).length}</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>posts</div></div>
+                  <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>{posts.filter(p => p.user_id === user?.id || p.username === user?.username).length}</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>posts</div></div>
                   <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>followers</div></div>
                   <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>following</div></div>
                 </div>
@@ -379,20 +380,22 @@ export default function Home() {
                 ))}
               </div>
             )}
-</div>
-            {posts.filter(p => p.user_id === user?.id).length > 0 && (
+          </div>
+          <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
+            <h3 style={{ fontWeight: 600, marginBottom: 16 }}>Posts</h3>
+            {userPosts.length > 0 ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
-                {posts.filter(p => p.user_id === user?.id).map((post, i) => (
+                {userPosts.map((post, i) => (
                   <div 
                     key={i} 
                     style={{ aspectRatio: '1/1', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', cursor: 'pointer' }}
                   />
                 ))}
               </div>
+            ) : (
+              <p style={{ color: secondaryText, textAlign: 'center', padding: '20px' }}>No posts yet. Upload your first 360 photo!</p>
             )}
-            <div style={{ textAlign: 'center', padding: '20px', color: secondaryText, fontSize: '0.9rem' }}>
-              {posts.filter(p => p.user_id === user?.id).length === 0 ? 'No posts yet. Upload your first 360 photo!' : `${posts.filter(p => p.user_id === user?.id).length} posts`}
-            </div>
+          </div>
         </div>
       )}
 
