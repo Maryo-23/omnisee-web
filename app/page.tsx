@@ -57,6 +57,8 @@ export default function Home() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [cropping, setCropping] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'feed'|'profile'>('feed');
 
@@ -463,11 +465,8 @@ export default function Home() {
                       if (!file) return;
                       const reader = new FileReader();
                       reader.onload = () => {
-                        const base64 = reader.result as string;
-                        const updatedUser = { ...user!, avatar_url: base64 };
-                        setUser(updatedUser);
-                        localStorage.setItem('user', JSON.stringify(updatedUser));
-                        setSuccess('Profile picture updated!');
+                        setCropImage(reader.result as string);
+                        setCropping(true);
                       };
                       reader.readAsDataURL(file);
                     }} />
@@ -542,6 +541,69 @@ export default function Home() {
                 Cancel
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {cropping && cropImage && (
+        <div style={styles.modal} onClick={() => { setCropping(false); setCropImage(null); }}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: 20, color: isDark ? 'white' : '#262626' }}>Crop Your Photo</h3>
+            <div style={{ position: 'relative', width: '100%', maxHeight: '300px', overflow: 'hidden', borderRadius: 8, marginBottom: 20 }}>
+              <img 
+                src={cropImage} 
+                id="cropSource"
+                style={{ width: '100%', display: 'block' }}
+                alt="Crop"
+              />
+              <div style={{
+                position: 'absolute',
+                top: '20%',
+                left: '20%',
+                width: '60%',
+                height: '60%',
+                border: '2px dashed white',
+                background: 'rgba(0,0,0,0.3)',
+                cursor: 'move'
+              }} />
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button 
+                onClick={() => {
+                  const img = document.getElementById('cropSource') as HTMLImageElement;
+                  const canvas = document.createElement('canvas');
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx || !img) return;
+                  
+                  const scale = img.naturalWidth / img.width;
+                  const sx = img.width * 0.2 * scale;
+                  const sy = img.height * 0.2 * scale;
+                  const sw = img.width * 0.6 * scale;
+                  const sh = img.height * 0.6 * scale;
+                  
+                  canvas.width = 200;
+                  canvas.height = 200;
+                  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 200, 200);
+                  
+                  const cropped = canvas.toDataURL('image/jpeg', 0.8);
+                  const updatedUser = { ...user!, avatar_url: cropped };
+                  setUser(updatedUser);
+                  localStorage.setItem('user', JSON.stringify(updatedUser));
+                  setCropping(false);
+                  setCropImage(null);
+                  setSuccess('Profile picture updated!');
+                }}
+                style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Apply Crop
+              </button>
+              <button 
+                onClick={() => { setCropping(false); setCropImage(null); }}
+                style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
