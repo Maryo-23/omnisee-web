@@ -62,11 +62,22 @@ export default function Home() {
   const [cropping, setCropping] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'feed'|'profile'>('feed');
-  const [albums, setAlbums] = useState<{id: string, name: string, cover: string, photos: string[], followers: string[]}[]>([]);
+  const [feedTab, setFeedTab] = useState<'foryou'|'following'|'topics'>('foryou');
+  const [albums, setAlbums] = useState<{id: string, name: string, cover: string, photos: string[], followers: string[], topic?: string}[]>([]);
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [newAlbumName, setNewAlbumName] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [notifications, setNotifications] = useState<string[]>([]);
+  const [following, setFollowing] = useState<string[]>([]);
+
+  const topics = [
+    { id: 'mountains', name: 'Mountains', emoji: '🏔️', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
+    { id: 'water', name: 'Water', emoji: '🌊', color: 'linear-gradient(135deg, #14b8a6, #0ea5e9)' },
+    { id: 'city', name: 'City', emoji: '🏙️', color: 'linear-gradient(135deg, #6366f1, #8b5cf6)' },
+    { id: 'nature', name: 'Nature', emoji: '🌲', color: 'linear-gradient(135deg, #22c55e, #14b8a6)' },
+    { id: 'sunset', name: 'Sunset', emoji: '🌅', color: 'linear-gradient(135deg, #f97316, #ec4899)' },
+    { id: 'space', name: 'Space', emoji: '🚀', color: 'linear-gradient(135deg, #1e293b, #6366f1)' },
+  ];
 
   const isDark = darkMode;
   const containerStyle = { minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' };
@@ -86,6 +97,8 @@ export default function Home() {
       setShowModal(true);
       setMode('signup');
     }
+    const savedFollowing = localStorage.getItem('following');
+    if (savedFollowing) setFollowing(JSON.parse(savedFollowing));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -449,22 +462,69 @@ export default function Home() {
         )}
       </nav>
 
-      <section style={{ ...styles.section, background: isDark ? 'rgba(26,26,46,0.3)' : 'rgba(0,0,0,0.03)' }}>
-        <div style={{ textAlign: 'center', marginBottom: 50 }}>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: 16, color: textColor }}>Immersive Experiences</h2>
-          <p style={{ color: secondaryText, maxWidth: '500px', margin: '0 auto' }}>Explore stunning 360 content from creators worldwide</p>
-        </div>
+      <section style={{ ...styles.section, paddingTop: 80 }}>
+        <div style={{ maxWidth: 470, margin: '0 auto' }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 20, borderBottom: `1px solid ${isDark ? '#262626' : '#DBDBDB'}`, paddingBottom: 12 }}>
+            <button 
+              onClick={() => setFeedTab('foryou')}
+              style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: feedTab === 'foryou' ? 'linear-gradient(135deg, #6366F1, #EC4899)' : 'transparent', color: feedTab === 'foryou' ? 'white' : secondaryText, cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              For You
+            </button>
+            <button 
+              onClick={() => setFeedTab('following')}
+              style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: feedTab === 'following' ? 'linear-gradient(135deg, #6366F1, #EC4899)' : 'transparent', color: feedTab === 'following' ? 'white' : secondaryText, cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              Following
+            </button>
+            <button 
+              onClick={() => setFeedTab('topics')}
+              style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: feedTab === 'topics' ? 'linear-gradient(135deg, #6366F1, #EC4899)' : 'transparent', color: feedTab === 'topics' ? 'white' : secondaryText, cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
+            >
+              Topics
+            </button>
+          </div>
 
-        <div style={styles.showcase}>
-          {featured.map((item, i) => (
-            <div key={i} style={{ ...styles.showcaseCard, background: item.color }}>
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 30, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
-                <span style={{ display: 'inline-block', padding: '6px 14px', background: 'rgba(255,255,255,0.2)', borderRadius: 20, fontSize: '0.75rem', marginBottom: 10 }}>360</span>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>{item.title}</h3>
-                <p style={{ opacity: 0.8 }}>by {item.author}</p>
+          {feedTab === 'topics' && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {topics.map(topic => (
+                  <div 
+                    key={topic.id}
+                    onClick={() => {
+                      const topicAlbum = albums.find(a => a.topic === topic.id);
+                      if (topicAlbum) {
+                        setSelectedAlbum(albums.indexOf(topicAlbum));
+                      } else {
+                        setNewAlbumName(topic.name);
+                        setShowAlbumModal(true);
+                      }
+                    }}
+                    style={{ aspectRatio: '1/1', background: topic.color, borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                  >
+                    <span style={{ fontSize: '1.5rem' }}>{topic.emoji}</span>
+                    <span style={{ color: 'white', fontWeight: 600, fontSize: '0.8rem', marginTop: 4 }}>{topic.name}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
+          )}
+
+          {feedTab === 'foryou' && (
+            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <p style={{ color: secondaryText }}>Welcome to your feed! Follow users and topics to see content here.</p>
+            </div>
+          )}
+
+          {feedTab === 'following' && (
+            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+              {following.length === 0 ? (
+                <p style={{ color: secondaryText }}>You're not following anyone yet. Follow users to see their posts here!</p>
+              ) : (
+                <p style={{ color: secondaryText }}>You're following {following.length} user(s)</p>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
