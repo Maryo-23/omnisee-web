@@ -59,6 +59,9 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [cropImage, setCropImage] = useState<string | null>(null);
   const [cropping, setCropping] = useState(false);
+  const [cropPos, setCropPos] = useState({ x: 20, y: 20, w: 60, h: 60 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'feed'|'profile'>('feed');
 
@@ -551,23 +554,50 @@ export default function Home() {
         <div style={styles.modal} onClick={() => { setCropping(false); setCropImage(null); }}>
           <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: 20, color: isDark ? 'white' : '#262626' }}>Crop Your Photo</h3>
-            <div style={{ position: 'relative', width: '100%', maxHeight: '300px', overflow: 'hidden', borderRadius: 8, marginBottom: 20 }}>
+            <p style={{ fontSize: '0.85rem', color: isDark ? '#A1A1AA' : '#71717A', marginBottom: 15 }}>Drag to select the area you want</p>
+            <div 
+              style={{ position: 'relative', width: '100%', maxHeight: '300px', overflow: 'hidden', borderRadius: 8, marginBottom: 20, cursor: 'crosshair', userSelect: 'none' }}
+              onMouseDown={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                setDragStart({ x, y });
+                setCropPos({ x, y, w: 0, h: 0 });
+                setIsDragging(true);
+              }}
+              onMouseMove={(e) => {
+                if (!isDragging) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                setCropPos({
+                  x: Math.min(dragStart.x, x),
+                  y: Math.min(dragStart.y, y),
+                  w: Math.abs(x - dragStart.x),
+                  h: Math.abs(y - dragStart.y)
+                });
+              }}
+              onMouseUp={() => setIsDragging(false)}
+              onMouseLeave={() => setIsDragging(false)}
+            >
               <img 
                 src={cropImage} 
                 id="cropSource"
                 style={{ width: '100%', display: 'block' }}
                 alt="Crop"
               />
-              <div style={{
-                position: 'absolute',
-                top: '20%',
-                left: '20%',
-                width: '60%',
-                height: '60%',
-                border: '2px dashed white',
-                background: 'rgba(0,0,0,0.3)',
-                cursor: 'move'
-              }} />
+              {cropPos.w > 0 && cropPos.h > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: `${cropPos.y}%`,
+                  left: `${cropPos.x}%`,
+                  width: `${cropPos.w}%`,
+                  height: `${cropPos.h}%`,
+                  border: '2px dashed white',
+                  background: 'rgba(0,0,0,0.3)',
+                  pointerEvents: 'none'
+                }} />
+              )}
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
               <button 
@@ -575,13 +605,13 @@ export default function Home() {
                   const img = document.getElementById('cropSource') as HTMLImageElement;
                   const canvas = document.createElement('canvas');
                   const ctx = canvas.getContext('2d');
-                  if (!ctx || !img) return;
+                  if (!ctx || !img || cropPos.w <= 0 || cropPos.h <= 0) return;
                   
                   const scale = img.naturalWidth / img.width;
-                  const sx = img.width * 0.2 * scale;
-                  const sy = img.height * 0.2 * scale;
-                  const sw = img.width * 0.6 * scale;
-                  const sh = img.height * 0.6 * scale;
+                  const sx = (img.width * cropPos.x / 100) * scale;
+                  const sy = (img.height * cropPos.y / 100) * scale;
+                  const sw = (img.width * cropPos.w / 100) * scale;
+                  const sh = (img.height * cropPos.h / 100) * scale;
                   
                   canvas.width = 200;
                   canvas.height = 200;
@@ -593,6 +623,7 @@ export default function Home() {
                   localStorage.setItem('user', JSON.stringify(updatedUser));
                   setCropping(false);
                   setCropImage(null);
+                  setCropPos({ x: 20, y: 20, w: 60, h: 60 });
                   setSuccess('Profile picture updated!');
                 }}
                 style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
@@ -600,7 +631,7 @@ export default function Home() {
                 Apply Crop
               </button>
               <button 
-                onClick={() => { setCropping(false); setCropImage(null); }}
+                onClick={() => { setCropping(false); setCropImage(null); setCropPos({ x: 20, y: 20, w: 60, h: 60 }); }}
                 style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
               >
                 Cancel
