@@ -379,10 +379,20 @@ export default function Home() {
                 ))}
               </div>
             )}
-          </div>
-          <div style={{ textAlign: 'center', padding: '20px', color: secondaryText, fontSize: '0.9rem' }}>
-            {posts.length === 0 ? 'No posts yet. Upload your first 360 photo!' : `${posts.length} posts`}
-          </div>
+</div>
+            {posts.filter(p => p.user_id === user?.id).length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
+                {posts.filter(p => p.user_id === user?.id).map((post, i) => (
+                  <div 
+                    key={i} 
+                    style={{ aspectRatio: '1/1', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', cursor: 'pointer' }}
+                  />
+                ))}
+              </div>
+            )}
+            <div style={{ textAlign: 'center', padding: '20px', color: secondaryText, fontSize: '0.9rem' }}>
+              {posts.filter(p => p.user_id === user?.id).length === 0 ? 'No posts yet. Upload your first 360 photo!' : `${posts.filter(p => p.user_id === user?.id).length} posts`}
+            </div>
         </div>
       )}
 
