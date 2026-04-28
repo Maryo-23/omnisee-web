@@ -71,6 +71,8 @@ export default function Home() {
   const [following, setFollowing] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [topicSearch, setTopicSearch] = useState('');
+  const [customTopics, setCustomTopics] = useState<{id: string, name: string, description: string, emoji: string}[]>([]);
 
   const topics = [
     { id: 'mountains', name: 'Mountains', emoji: '🏔️', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
@@ -437,8 +439,28 @@ export default function Home() {
 
           {feedTab === 'topics' && (
             <div style={{ marginBottom: 24 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                {topics.map(topic => (
+              <input 
+                style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', marginBottom: 16 }}
+                placeholder="Search topics..."
+                value={topicSearch}
+                onChange={(e) => setTopicSearch(e.target.value)}
+              />
+              <button 
+                onClick={() => {
+                  const name = prompt('Topic name:');
+                  if (name) {
+                    const desc = prompt('Description:') || '';
+                    const emoji = prompt('Emoji (optional):') || '📷';
+                    const id = name.toLowerCase().replace(/\s+/g, '-');
+                    setCustomTopics([...customTopics, { id, name, description: desc, emoji }]);
+                  }
+                }}
+                style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px dashed #8B5CF6', background: 'transparent', color: '#8B5CF6', cursor: 'pointer', fontSize: '0.9rem', marginBottom: 16 }}
+              >
+                + Create Custom Topic
+              </button>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+                {([...customTopics, ...topics] as any[]).filter(t => !topicSearch || t.name.toLowerCase().includes(topicSearch.toLowerCase())).map(topic => (
                   <div 
                     key={topic.id}
                     onClick={() => {
@@ -450,10 +472,11 @@ export default function Home() {
                         setShowAlbumModal(true);
                       }
                     }}
-                    style={{ aspectRatio: '1/1', background: topic.color, borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    style={{ padding: 16, background: topic.color || 'rgba(99,102,241,0.3)', borderRadius: 12, cursor: 'pointer' }}
                   >
-                    <span style={{ fontSize: '1.5rem' }}>{topic.emoji}</span>
-                    <span style={{ color: 'white', fontWeight: 600, fontSize: '0.8rem', marginTop: 4 }}>{topic.name}</span>
+                    <div style={{ fontSize: '1.5rem' }}>{(topic as any).emoji || '📷'}</div>
+                    <div style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem', marginTop: 8 }}>{(topic as any).name || topic.name}</div>
+                    {(topic as any).description && <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', marginTop: 4 }}>{(topic as any).description}</div>}
                   </div>
                 ))}
               </div>
