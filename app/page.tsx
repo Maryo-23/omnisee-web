@@ -62,10 +62,11 @@ export default function Home() {
   const [cropping, setCropping] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'feed'|'profile'>('feed');
-  const [albums, setAlbums] = useState<{id: string, name: string, cover: string, photos: string[]}[]>([]);
+  const [albums, setAlbums] = useState<{id: string, name: string, cover: string, photos: string[], followers: string[]}[]>([]);
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [newAlbumName, setNewAlbumName] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
+  const [notifications, setNotifications] = useState<string[]>([]);
 
   const isDark = darkMode;
   const containerStyle = { minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' };
@@ -563,6 +564,27 @@ export default function Home() {
                   <p style={{ color: isDark ? '#71717A' : '#A1A1AA', fontSize: '0.8rem', marginTop: 8 }}>360 photos and videos supported</p>
                 </label>
               </div>
+              {albums.length > 0 && (
+                <select 
+                  style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', marginBottom: 16 }}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const albumIndex = parseInt(e.target.value);
+                      const newAlbums = [...albums];
+                      newAlbums[albumIndex].photos.push(`photo_${Date.now()}`);
+                      setAlbums(newAlbums);
+                      if (newAlbums[albumIndex].followers?.length) {
+                        setNotifications([...notifications, `New photo added to ${newAlbums[albumIndex].name}!`]);
+                      }
+                    }
+                  }}
+                >
+                  <option value="">Add to album (notifies followers)</option>
+                  {albums.map((album, i) => (
+                    <option key={i} value={i}>{album.name} ({album.followers?.length || 0} followers)</option>
+                  ))}
+                </select>
+              )}
               <textarea style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', minHeight: '100px', resize: 'vertical' }} placeholder="Write a caption..." value={uploadCaption} onChange={e => setUploadCaption(e.target.value)} />
               {error && <p style={{ color: '#ef4444', marginBottom: 16 }}>{error}</p>}
               {success && <p style={{ color: '#4ade80', marginBottom: 16 }}>{success}</p>}
@@ -649,7 +671,7 @@ export default function Home() {
               <button 
                 onClick={() => {
                   if (!newAlbumName.trim()) return;
-                  setAlbums([...albums, { id: Date.now().toString(), name: newAlbumName, cover: '', photos: [] }]);
+                  setAlbums([...albums, { id: Date.now().toString(), name: newAlbumName, cover: '', photos: [], followers: [] }]);
                   setNewAlbumName('');
                   setShowAlbumModal(false);
                 }}
@@ -672,18 +694,48 @@ export default function Home() {
         <div style={styles.modal} onClick={() => setSelectedAlbum(null)}>
           <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: isDark ? 'white' : '#262626' }}>{albums[selectedAlbum].name}</h3>
-              <button 
-                onClick={() => {
-                  const newAlbums = [...albums];
-                  newAlbums.splice(selectedAlbum, 1);
-                  setAlbums(newAlbums);
-                  setSelectedAlbum(null);
-                }}
-                style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#ef4444', color: 'white', cursor: 'pointer', fontSize: '0.8rem' }}
-              >
-                Delete
-              </button>
+              <div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: isDark ? 'white' : '#262626' }}>{albums[selectedAlbum].name}</h3>
+                <p style={{ fontSize: '0.85rem', color: secondaryText }}>{albums[selectedAlbum].followers?.length || 0} followers</p>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {user && albums[selectedAlbum].followers?.includes(user.email || user.email?.toLowerCase()) ? (
+                  <button 
+                    onClick={() => {
+                      const newAlbums = [...albums];
+                      newAlbums[selectedAlbum].followers = newAlbums[selectedAlbum].followers?.filter(e => e !== (user.email || user.email?.toLowerCase()));
+                      setAlbums(newAlbums);
+                    }}
+                    style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#ef4444', color: 'white', cursor: 'pointer', fontSize: '0.8rem' }}
+                  >
+                    Unfollow
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      if (!user) return;
+                      const newAlbums = [...albums];
+                      if (!newAlbums[selectedAlbum].followers) newAlbums[selectedAlbum].followers = [];
+                      newAlbums[selectedAlbum].followers.push(user.email || user.email?.toLowerCase());
+                      setAlbums(newAlbums);
+                    }}
+                    style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#FFD700', color: '#000', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
+                  >
+                    Follow
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    const newAlbums = [...albums];
+                    newAlbums.splice(selectedAlbum, 1);
+                    setAlbums(newAlbums);
+                    setSelectedAlbum(null);
+                  }}
+                  style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#ef4444', color: 'white', cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
             {albums[selectedAlbum].photos.length === 0 ? (
               <p style={{ color: secondaryText, textAlign: 'center', padding: '40px 0' }}>No photos in this album yet.</p>
