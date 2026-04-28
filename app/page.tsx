@@ -69,6 +69,8 @@ export default function Home() {
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [notifications, setNotifications] = useState<string[]>([]);
   const [following, setFollowing] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
 
   const topics = [
     { id: 'mountains', name: 'Mountains', emoji: '🏔️', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
@@ -621,6 +623,50 @@ export default function Home() {
                 </select>
               )}
               <textarea style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', minHeight: '100px', resize: 'vertical' }} placeholder="Write a caption..." value={uploadCaption} onChange={e => setUploadCaption(e.target.value)} />
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: '0.85rem', color: secondaryText, display: 'block', marginBottom: 8 }}>Topic Tags</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                  {selectedTags.map((tag, i) => (
+                    <span key={i} style={{ padding: '4px 10px', background: '#8B5CF6', borderRadius: 12, fontSize: '0.8rem', color: 'white', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      #{tag}
+                      <button type="button" onClick={() => setSelectedTags(selectedTags.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>×</button>
+                    </span>
+                  ))}
+                </div>
+                <input 
+                  style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} 
+                  placeholder="Add topic tags (press Enter)" 
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && tagInput.trim()) {
+                      e.preventDefault();
+                      const tag = tagInput.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+                      if (tag && !selectedTags.includes(tag)) {
+                        setSelectedTags([...selectedTags, tag]);
+                      }
+                      setTagInput('');
+                    }
+                  }}
+                />
+                <p style={{ fontSize: '0.7rem', color: secondaryText, marginTop: 4 }}>Press Enter to add tags like #mountains #sunset</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  {['mountains', 'water', 'city', 'nature', 'sunset', 'space', 'travel', '360'].map(tag => (
+                    <button 
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        if (!selectedTags.includes(tag)) {
+                          setSelectedTags([...selectedTags, tag]);
+                        }
+                      }}
+                      style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #8B5CF6', background: 'transparent', color: '#8B5CF6', cursor: 'pointer', fontSize: '0.7rem' }}
+                    >
+                      #{tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
               {error && <p style={{ color: '#ef4444', marginBottom: 16 }}>{error}</p>}
               {success && <p style={{ color: '#4ade80', marginBottom: 16 }}>{success}</p>}
               <button type="submit" disabled={uploading} style={{ ...styles.btn, width: '100%', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', marginTop: 10 }}>
