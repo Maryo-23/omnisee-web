@@ -297,7 +297,7 @@ export default function Home() {
           <div style={{ padding: '20px 20px 0', borderBottom: `1px solid ${darkMode ? '#262626' : '#DBDBDB'}`, marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, maxWidth: 470, margin: '0 auto' }}>
               <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setMode('editprofile'); setShowModal(true); }}>
-                <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)' }} alt="" />
+                <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', pointerEvents: 'none', userSelect: 'none' }} alt="" />
                 <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#0095F6', borderRadius: '50%', padding: 4 }}>
                   <svg width={12} height={12} viewBox="0 0 24 24" fill="white"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
                 </div>
@@ -378,7 +378,7 @@ export default function Home() {
               onClick={() => setView(view === 'feed' ? 'profile' : 'feed')}
               style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', padding: '6px 16px', borderRadius: 20 }}
             >
-              <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 24, height: 24, borderRadius: '50%' }} alt="" />
+              <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 24, height: 24, borderRadius: '50%', pointerEvents: 'none', userSelect: 'none' }} alt="" />
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>{user.display_name || user.displayName || user.username}</span>
             </div>
           ) : (
@@ -501,8 +501,8 @@ export default function Home() {
                       };
                       reader.readAsDataURL(file);
                     }} />
-                    <label htmlFor="avatarInput" style={{ cursor: 'pointer' }}>
-                      <img src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #0095F6' }} alt="" />
+                    <label htmlFor="avatarInput" style={{ cursor: 'pointer', userSelect: 'none' }}>
+                      <img src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #0095F6', pointerEvents: 'none' }} alt="" />
                       <div style={{ color: '#0095F6', fontSize: '0.85rem', marginTop: 8 }}>Change profile photo</div>
                     </label>
                   </div>
