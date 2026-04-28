@@ -379,7 +379,7 @@ export default function Home() {
               style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', padding: '6px 16px', borderRadius: 20 }}
             >
               <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 24, height: 24, borderRadius: '50%', pointerEvents: 'none', userSelect: 'none' }} alt="" />
-              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>{user.display_name || user.displayName || user.username}</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'white' }}>@{user.username}</span>
             </div>
           ) : (
             <>
