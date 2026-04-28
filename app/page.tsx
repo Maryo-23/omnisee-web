@@ -645,12 +645,15 @@ export default function Home() {
               <div style={{ marginBottom: 16 }}>
                 <label style={{ fontSize: '0.85rem', color: secondaryText, display: 'block', marginBottom: 8 }}>Topic Tags</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
-                  {selectedTags.map((tag, i) => (
-                    <span key={i} style={{ padding: '4px 10px', background: '#8B5CF6', borderRadius: 12, fontSize: '0.8rem', color: 'white', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      #{tag}
-                      <button type="button" onClick={() => setSelectedTags(selectedTags.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>×</button>
-                    </span>
-                  ))}
+                  {selectedTags.map((tag, i) => {
+                    const topic = customTopics.find(t => t.id === tag || t.name.toLowerCase() === tag.toLowerCase());
+                    return (
+                      <span key={i} style={{ padding: '4px 10px', background: '#8B5CF6', borderRadius: 12, fontSize: '0.8rem', color: 'white', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        #{tag}
+                        <button type="button" onClick={() => setSelectedTags(selectedTags.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>×</button>
+                      </span>
+                    );
+                  })}
                 </div>
                 <input 
                   style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} 
@@ -670,20 +673,24 @@ export default function Home() {
                 />
                 <p style={{ fontSize: '0.7rem', color: secondaryText, marginTop: 4 }}>Press Enter to add tags like #mountains #sunset</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                  {['mountains', 'water', 'city', 'nature', 'sunset', 'space', 'travel', '360'].map(tag => (
+                  {customTopics.map(topic => (
                     <button 
-                      key={tag}
+                      key={topic.id}
                       type="button"
+                      title={topic.description}
                       onClick={() => {
-                        if (!selectedTags.includes(tag)) {
-                          setSelectedTags([...selectedTags, tag]);
+                        if (!selectedTags.includes(topic.name.toLowerCase())) {
+                          setSelectedTags([...selectedTags, topic.name.toLowerCase()]);
                         }
                       }}
                       style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #8B5CF6', background: 'transparent', color: '#8B5CF6', cursor: 'pointer', fontSize: '0.7rem' }}
                     >
-                      #{tag}
+                      {topic.emoji} #{topic.name}
                     </button>
                   ))}
+                  {customTopics.length === 0 && (
+                    <p style={{ fontSize: '0.75rem', color: secondaryText }}>Create topics first, then add tags from them</p>
+                  )}
                 </div>
               </div>
               {error && <p style={{ color: '#ef4444', marginBottom: 16 }}>{error}</p>}
