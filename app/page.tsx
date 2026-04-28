@@ -882,26 +882,14 @@ export default function Home() {
               value={newTopicDesc}
               onChange={(e) => setNewTopicDesc(e.target.value)}
             />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8, padding: '8px', background: isDark ? '#262626' : '#F5F5F5', borderRadius: 8 }}>
-              {['📷', '🏔️', '🌊', '🏙️', '🌲', '🌅', '🚀', '🎮', '🎨', '📸', '🌍', '🏖️'].map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => setNewTopicEmoji(newTopicEmoji === emoji ? '' : emoji)}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    fontSize: '1.1rem',
-                    border: newTopicEmoji === emoji ? '2px solid #6366F1' : '1px solid #DBDBDB',
-                    borderRadius: 6,
-                    background: 'white',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
+            <input 
+              style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', marginTop: 8, fontSize: '1.5rem', textAlign: 'center' }} 
+              placeholder="😊" 
+              value={newTopicEmoji}
+              onChange={(e) => setNewTopicEmoji(e.target.value)}
+              maxLength={2}
+            />
+            <p style={{ fontSize: '0.75rem', color: secondaryText, marginTop: 4, textAlign: 'center' }}>Type or paste any emoji</p>
             <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
               <button 
                 onClick={() => {
