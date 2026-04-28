@@ -310,10 +310,9 @@ export default function Home() {
               </div>
             </div>
             <div style={{ maxWidth: 470, margin: '20px auto 0' }}>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{user.display_name || user.username}</div>
-              <div style={{ fontSize: '0.9rem', color: secondaryText }}>@{user.username}</div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>@{user.username}</div>
+              {user.display_name && <div style={{ fontSize: '0.9rem', color: secondaryText, marginBottom: 4 }}>{user.display_name}</div>}
               {user.bio && <div style={{ marginTop: 12, fontSize: '0.95rem' }}>{user.bio}</div>}
-              {user.display_name && <div style={{ marginTop: 8, fontSize: '0.9rem', color: secondaryText }}>{user.display_name}</div>}
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                 <button 
                   onClick={() => { setMode('editprofile'); setShowModal(true); }}
@@ -579,6 +578,29 @@ export default function Home() {
               }}
               onMouseUp={() => setIsDragging(false)}
               onMouseLeave={() => setIsDragging(false)}
+              onTouchStart={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = ((touch.clientX - rect.left) / rect.width) * 100;
+                const y = ((touch.clientY - rect.top) / rect.height) * 100;
+                setDragStart({ x, y });
+                setCropPos({ x, y, w: 0, h: 0 });
+                setIsDragging(true);
+              }}
+              onTouchMove={(e) => {
+                if (!isDragging) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = ((touch.clientX - rect.left) / rect.width) * 100;
+                const y = ((touch.clientY - rect.top) / rect.height) * 100;
+                setCropPos({
+                  x: Math.min(dragStart.x, x),
+                  y: Math.min(dragStart.y, y),
+                  w: Math.abs(x - dragStart.x),
+                  h: Math.abs(y - dragStart.y)
+                });
+              }}
+              onTouchEnd={() => setIsDragging(false)}
             >
               <img 
                 src={cropImage} 
