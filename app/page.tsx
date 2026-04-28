@@ -108,13 +108,9 @@ export default function Home() {
         return;
       }
 
-      if (mode === 'editprofile') {
-        const displayName = (form.elements.namedItem('name') as HTMLInputElement).value;
-        const bio = (form.elements.namedItem('bio') as HTMLInputElement).value;
-        // Save locally instantly - no backend call needed
-        const updatedUser = { ...user, display_name: displayName, bio };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        setUser(updatedUser);
+      if (mode === 'editprofile' && user) {
+        // Use user state directly (already updated via onChange)
+        localStorage.setItem('user', JSON.stringify(user));
         setShowModal(false);
         return;
       }
