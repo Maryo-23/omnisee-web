@@ -69,9 +69,10 @@ export default function Home() {
   const [newAlbumName, setNewAlbumName] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [viewingPost, setViewingPost] = useState<any>(null);
-  const [viewRotation, setViewRotation] = useState({ x: 0, y: 0 });
+  const [viewRotation, setViewRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
+  const startRotation = useRef(0);
   const [notifications, setNotifications] = useState<string[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const userPosts = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
@@ -433,12 +434,11 @@ export default function Home() {
           </button>
           {viewingPost.media_type === 'photo' ? (
               <div 
-                onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); }}
+                onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); startRotation.current = viewRotation; }}
                 onMouseMove={(e) => {
                   if (isDragging) {
                     const dx = e.clientX - lastPos.x;
-                    setViewRotation(r => ({ ...r, y: r.y + dx * 0.5 }));
-                    setLastPos({ x: e.clientX, y: e.clientY });
+                    setViewRotation(startRotation.current + dx * 0.5);
                   }
                 }}
                 onMouseUp={() => setIsDragging(false)}
@@ -447,8 +447,7 @@ export default function Home() {
                   flex: 1,
                   overflow: 'hidden', 
                   cursor: isDragging ? 'grabbing' : 'grab',
-                  background: '#000',
-                  perspective: '1000px'
+                  background: '#000'
                 }}
               >
                 <img 
@@ -458,8 +457,8 @@ export default function Home() {
                     width: '100%', 
                     height: '100%', 
                     objectFit: 'cover',
-                    transform: `rotateY(${viewRotation.y}deg)`,
-                    transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                    transform: `translateX(${-viewRotation}%) scale(1.5)`,
+                    transition: isDragging ? 'none' : 'transform 0.3s ease-out',
                     pointerEvents: 'none',
                     userSelect: 'none'
                   }}
