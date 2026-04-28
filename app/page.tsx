@@ -76,7 +76,6 @@ export default function Home() {
   const [showTopicModal, setShowTopicModal] = useState(false);
   const [newTopicName, setNewTopicName] = useState('');
   const [newTopicDesc, setNewTopicDesc] = useState('');
-  const [newTopicEmoji, setNewTopicEmoji] = useState('📷');
 
   const topics = [
     { id: 'mountains', name: 'Mountains', emoji: '🏔️', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
@@ -882,21 +881,14 @@ export default function Home() {
               value={newTopicDesc}
               onChange={(e) => setNewTopicDesc(e.target.value)}
             />
-            <input 
-              style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} 
-              placeholder="Emoji (optional)" 
-              value={newTopicEmoji}
-              onChange={(e) => setNewTopicEmoji(e.target.value)}
-            />
             <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
               <button 
                 onClick={() => {
                   if (!newTopicName.trim()) return;
                   const id = newTopicName.toLowerCase().replace(/\s+/g, '-');
-                  setCustomTopics([...customTopics, { id, name: newTopicName, description: newTopicDesc, emoji: newTopicEmoji || '📷' }]);
+                  setCustomTopics([...customTopics, { id, name: newTopicName, description: newTopicDesc, emoji: '📷' }]);
                   setNewTopicName('');
                   setNewTopicDesc('');
-                  setNewTopicEmoji('📷');
                   setShowTopicModal(false);
                 }}
                 style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
@@ -904,7 +896,7 @@ export default function Home() {
                 Create
               </button>
               <button 
-                onClick={() => { setShowTopicModal(false); setNewTopicName(''); setNewTopicDesc(''); setNewTopicEmoji('📷'); }}
+                onClick={() => { setShowTopicModal(false); setNewTopicName(''); setNewTopicDesc(''); }}
                 style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
               >
                 Cancel
