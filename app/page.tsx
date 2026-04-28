@@ -67,25 +67,13 @@ export default function Home() {
   const [albums, setAlbums] = useState<{id: string, name: string, cover: string, photos: string[], followers: string[], topic?: string}[]>([]);
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [newAlbumName, setNewAlbumName] = useState('');
-  const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
+const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [viewingPost, setViewingPost] = useState<any>(null);
   const [viewRotation, setViewRotation] = useState({ x: 45, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const startRotation = useRef({ x: 45, y: 0 });
-  const viewerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!viewingPost) return;
-      if (e.key === 'ArrowLeft') setViewRotation(r => ({ ...r, y: r.y + 15 }));
-      if (e.key === 'ArrowRight') setViewRotation(r => ({ ...r, y: r.y - 15 }));
-      if (e.key === 'Escape') setViewingPost(null);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [viewingPost]);
   const [notifications, setNotifications] = useState<string[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const userPosts = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
@@ -411,167 +399,31 @@ export default function Home() {
 </div>
         )}
 
-{viewingPost && (
-        <div 
-          style={{ 
-            position: 'fixed', 
-            inset: 0, 
-            background: '#000', 
-            zIndex: 200,
-            overflow: 'hidden'
-          }}
-        >
-          <button 
-            onClick={() => setViewingPost(null)}
-            style={{
-              position: 'absolute',
-              top: 20,
-              right: 20,
-              width: 50,
-              height: 50,
-              borderRadius: '50%',
-              border: 'none',
-              background: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              fontSize: 24,
-              cursor: 'pointer',
-              zIndex: 201,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            ✕
-          </button>
-          <button 
-            onClick={() => setZoom(z => Math.min(z + 0.25, 3))}
-            style={{
-              position: 'absolute',
-              bottom: 100,
-              left: '50%',
-              transform: 'translateX(-60px)',
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              border: 'none',
-              background: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              fontSize: 24,
-              cursor: 'pointer',
-              zIndex: 201
-            }}
-          >
-            +
-          </button>
-          <button 
-            onClick={() => setZoom(z => Math.max(z - 0.25, 0.5))}
-            style={{
-              position: 'absolute',
-              bottom: 100,
-              left: '50%',
-              transform: 'translateX(20px)',
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              border: 'none',
-              background: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              fontSize: 24,
-              cursor: 'pointer',
-              zIndex: 201
-            }}
-          >
-            −
-          </button>
+      {viewingPost && (
+        <div style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 200 }}>
+          <button onClick={() => setViewingPost(null)} style={{ position: 'absolute', top: 20, right: 20, width: 50, height: 50, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: 24, cursor: 'pointer', zIndex: 201 }}>✕</button>
           {viewingPost.media_type === 'photo' ? (
-              <div 
-                onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); startRotation.current = { ...viewRotation }; }}
-                onMouseMove={(e) => {
-                  if (isDragging) {
-                    const dx = e.clientX - lastPos.x;
-                    const dy = e.clientY - lastPos.y;
-                    setViewRotation({ 
-                      x: Math.max(-85, Math.min(85, startRotation.current.x - dy * 0.3)), 
-                      y: startRotation.current.y + dx * 0.3 
-                    });
-                    setLastPos({ x: e.clientX, y: e.clientY });
-                  }
-                }}
-                onMouseUp={() => setIsDragging(false)}
-                onMouseLeave={() => setIsDragging(false)}
-                onTouchStart={(e) => { setIsDragging(true); setLastPos({ x: e.touches[0].clientX, y: e.touches[0].clientY }); startRotation.current = { ...viewRotation }; }}
-                onTouchMove={(e) => {
-                  if (isDragging) {
-                    const dx = e.touches[0].clientX - lastPos.x;
-                    const dy = e.touches[0].clientY - lastPos.y;
-                    setViewRotation({ 
-                      x: Math.max(-85, Math.min(85, startRotation.current.x - dy * 0.3)), 
-                      y: startRotation.current.y + dx * 0.3 
-                    });
-                  }
-                }}
-                onTouchEnd={() => setIsDragging(false)}
-                onWheel={(e) => { e.preventDefault(); setZoom(z => Math.max(0.5, Math.min(3, z - e.deltaY * 0.001))); }}
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  cursor: isDragging ? 'grabbing' : 'grab',
-                  background: '#111',
-                  perspective: '1000px',
-                  overflow: 'hidden'
-                }}
-              >
-                <div style={{
-                  width: '100%',
-                  height: '100%',
-                  perspective: '1000px',
-                  perspectiveOrigin: 'center center'
-                }}>
-                  <img 
-                    src={viewingPost.media_url} 
-                    alt="360" 
-                    style={{ 
-                      width: `${100 * zoom}%`, 
-                      height: `${100 * zoom}%`, 
-                      objectFit: 'cover',
-                      transform: `rotateX(${-viewRotation.x}deg) rotateY(${viewRotation.y}deg)`,
-                      transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-                      pointerEvents: 'none',
-                      userSelect: 'none'
-                    }}
-                    draggable={false}
-                  />
-                </div>
-                <div style={{ position: 'absolute', center: '50%', bottom: 100, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', background: 'rgba(0,0,0,0.5)', padding: '8px 16px', borderRadius: 20, whiteSpace: 'nowrap' }}>
-                  Click + drag to look around • Scroll to zoom
-                </div>
+            <div 
+              onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); startRotation.current = { ...viewRotation }; }}
+              onMouseMove={(e) => { if (isDragging) { const dx = e.clientX - lastPos.x, dy = e.clientY - lastPos.y; setViewRotation({ x: Math.max(-85, Math.min(85, startRotation.current.x - dy * 0.3)), y: startRotation.current.y + dx * 0.3 }); setLastPos({ x: e.clientX, y: e.clientY }); }}}
+              onMouseUp={() => setIsDragging(false)}
+              onMouseLeave={() => setIsDragging(false)}
+              onTouchStart={(e) => { setIsDragging(true); setLastPos({ x: e.touches[0].clientX, y: e.touches[0].clientY }); startRotation.current = { ...viewRotation }; }}
+              onTouchMove={(e) => { if (isDragging) { const dx = e.touches[0].clientX - lastPos.x, dy = e.touches[0].clientY - lastPos.y; setViewRotation({ x: Math.max(-85, Math.min(85, startRotation.current.x - dy * 0.3)), y: startRotation.current.y + dx * 0.3 }); }}}
+              onTouchEnd={() => setIsDragging(false)}
+              style={{ width: '100%', height: '100%', cursor: isDragging ? 'grabbing' : 'grab', background: '#111', overflow: 'hidden' }}
+            >
+              <div style={{ width: '100%', height: '100%', perspective: '1000px' }}>
+                <img src={viewingPost.media_url} alt="360" style={{ width: `${100*zoom}%`, height: `${100*zoom}%`, objectFit: 'cover', transform: `rotateX(${-viewRotation.x}deg) rotateY(${viewRotation.y}deg)`, transition: isDragging ? 'none' : 'transform 0.1s', pointerEvents: 'none' }} draggable={false} />
               </div>
-            ) : (
-              <video 
-                src={viewingPost.media_url} 
-                controls 
-                style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
-                autoPlay
-              />
-            )}
-          <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20, display: 'flex', gap: 12 }}>
-              <button 
-                onClick={() => { deletePost(viewingPost.id); setViewingPost(null); }}
-                style={{ flex: 1, padding: '14px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
-              >
-                Delete Post
-              </button>
+              <div style={{ position: 'absolute', bottom: 80, left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: 14, background: 'rgba(0,0,0,0.5)', padding: '8px 16px', borderRadius: 20 }}>Drag to look around</div>
+              <button onClick={(e) => { e.stopPropagation(); setZoom(z => Math.max(0.5, z - 0.25)); }} style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-80px)', width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: 24, cursor: 'pointer' }}>−</button>
+              <button onClick={(e) => { e.stopPropagation(); setZoom(z => Math.min(3, z + 0.25)); }} style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(40px)', width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: 24, cursor: 'pointer' }}>+</button>
             </div>
-        </div>
-      )}
-          <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20, display: 'flex', gap: 12 }}>
-              <button 
-                onClick={() => { deletePost(viewingPost.id); setViewingPost(null); }}
-                style={{ flex: 1, padding: '14px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
-              >
-                Delete Post
-              </button>
-            </div>
+          ) : (
+            <video src={viewingPost.media_url} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay />
+          )}
+          <button onClick={() => { deletePost(viewingPost.id); setViewingPost(null); }} style={{ position: 'absolute', bottom: 20, left: 20, right: 140, padding: 14, background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 16 }}>Delete Post</button>
         </div>
       )}
     </div>
