@@ -298,7 +298,7 @@ export default function Home() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, maxWidth: 470, margin: '0 auto' }}>
               <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => { setMode('editprofile'); setShowModal(true); }}>
                 <img src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} style={{ width: 77, height: 77, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', pointerEvents: 'none', userSelect: 'none' }} alt="" />
-                <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#0095F6', borderRadius: '50%', padding: 4 }}>
+                <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#FFD700', borderRadius: '50%', padding: 4 }}>
                   <svg width={12} height={12} viewBox="0 0 24 24" fill="white"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
                 </div>
               </div>
@@ -503,7 +503,7 @@ export default function Home() {
                     }} />
                     <label htmlFor="avatarInput" style={{ cursor: 'pointer', userSelect: 'none' }}>
                       <img src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #0095F6', pointerEvents: 'none' }} alt="" />
-                      <div style={{ color: '#0095F6', fontSize: '0.85rem', marginTop: 8 }}>Change profile photo</div>
+                      <div style={{ color: '#FFD700', fontSize: '0.85rem', marginTop: 8, fontWeight: 600 }}>Change profile photo</div>
                     </label>
                   </div>
                   <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="username" placeholder="Username" value={user?.username || ''} onChange={(e) => setUser(user ? { ...user, username: e.target.value } : null)} />
