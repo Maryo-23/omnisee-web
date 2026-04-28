@@ -339,8 +339,8 @@ export default function Home() {
                 <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Federated</div>
-                <div style={{ fontSize: '0.75rem', color: secondaryText }}>Your AT Protocol address:</div>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Federated (ActivityPub & AT Protocol)</div>
+                <div style={{ fontSize: '0.75rem', color: secondaryText }}>Your federated address:</div>
                 <div style={{ fontSize: '0.75rem', color: '#8B5CF6', fontFamily: 'monospace' }}>@{user?.username}@{user?.customDomain || 'omnisee.app'}</div>
               </div>
               <button 
