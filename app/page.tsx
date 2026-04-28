@@ -58,6 +58,7 @@ export default function Home() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cropImage, setCropImage] = useState<string | null>(null);
   const [cropping, setCropping] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -179,17 +180,27 @@ export default function Home() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (!selectedFile) {
+      setError('Please select a file first');
+      return;
+    }
     setUploading(true);
     try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('userId', user.id);
+      formData.append('caption', uploadCaption);
+      formData.append('mediaType', selectedFile.type.startsWith('video/') ? 'video' : 'photo');
+      
       const res = await fetch('https://omnisee-backend.onrender.com/api/posts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, mediaUrl: 'https://example.com/360-photo.jpg', mediaType: 'photo', caption: uploadCaption }),
+        body: formData,
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
       setSuccess('Posted successfully!');
       setUploadCaption('');
+      setSelectedFile(null);
       setTimeout(() => setShowUpload(false), 1500);
     } catch (err: any) {
       setError(err.message);
@@ -613,11 +624,24 @@ export default function Home() {
             <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30, color: isDark ? 'white' : '#262626' }}>Upload 360 Content</h3>
             <form onSubmit={handleUpload}>
               <div style={{ border: '2px dashed #6366F1', borderRadius: '12px', padding: '40px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }}>
-                <input type="file" accept="image/*,video/*,.mp4,.mov,.avi,.mkv,.webm,.m4v" style={{ display: 'none' }} id="fileInput" />
+                <input type="file" accept="image/*,video/*,.mp4,.mov,.avi,.mkv,.webm,.m4v" style={{ display: 'none' }} id="fileInput" onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setSelectedFile(file);
+                }} />
                 <label htmlFor="fileInput" style={{ cursor: 'pointer' }}>
-                  <div style={{ fontSize: '3rem', marginBottom: 12 }}>Camera</div>
-                  <p style={{ color: isDark ? '#A1A1AA' : '#71717A' }}>Click to select a file</p>
-                  <p style={{ color: isDark ? '#71717A' : '#A1A1AA', fontSize: '0.8rem', marginTop: 8 }}>All 360 formats supported (Theta, Insta360, DSLR, etc.)</p>
+                  {selectedFile ? (
+                    <div>
+                      <div style={{ fontSize: '2rem', marginBottom: 8 }}>File selected</div>
+                      <p style={{ color: isDark ? '#A1A1AA' : '#71717A', fontWeight: 600 }}>{selectedFile.name}</p>
+                      <p style={{ color: isDark ? '#71717A' : '#A1A1AA', fontSize: '0.8rem', marginTop: 4 }}>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: '3rem', marginBottom: 12 }}>Camera</div>
+                      <p style={{ color: isDark ? '#A1A1AA' : '#71717A' }}>Click to select a file</p>
+                      <p style={{ color: isDark ? '#71717A' : '#A1A1AA', fontSize: '0.8rem', marginTop: 8 }}>All 360 formats supported (Theta, Insta360, DSLR, etc.)</p>
+                    </>
+                  )}
                 </label>
               </div>
               {albums.length > 0 && (
