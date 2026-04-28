@@ -182,7 +182,6 @@ export default function Home() {
 
   const features = [
     { icon: 'Glob', title: 'Federated', desc: 'Connect with Mastodon, PixelFed, and more' },
-    { icon: 'Fast', title: 'Fast', desc: 'Built for speed on any connection' },
     { icon: 'Phone', title: 'Native', desc: 'iOS, Android, Web - all synced' },
     { icon: 'Target', title: 'No Ads', desc: 'No tracking. No profiling. Ever' },
     { icon: 'Gem', title: 'Free', desc: 'Open source. Free forever' },
