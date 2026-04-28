@@ -526,7 +526,7 @@ export default function Home() {
                     }} />
                     <label htmlFor="avatarInput" style={{ cursor: 'pointer', userSelect: 'none' }}>
                       <img src={user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #0095F6', pointerEvents: 'none' }} alt="" />
-                      <div style={{ color: '#FFD700', fontSize: '0.85rem', marginTop: 8, fontWeight: 600 }}>Change profile photo</div>
+                      <div style={{ color: '#000000', fontSize: '0.85rem', marginTop: 8, fontWeight: 600 }}>Change profile photo</div>
                     </label>
                   </div>
                   <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="username" placeholder="Username" value={user?.username || ''} onChange={(e) => setUser(user ? { ...user, username: e.target.value } : null)} />
