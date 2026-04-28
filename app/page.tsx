@@ -150,8 +150,11 @@ export default function Home() {
       if (!res.ok) throw new Error(data.error || 'Something went wrong');
       
       if (mode === 'login') {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
+        const existingUser = localStorage.getItem('user');
+        const existingUsername = existingUser ? JSON.parse(existingUser).username : null;
+        const userToSave = { ...data.user, username: existingUsername || data.user.username };
+        localStorage.setItem('user', JSON.stringify(userToSave));
+        setUser(userToSave);
         setSuccess('Logged in successfully!');
         setShowModal(false);
       } else {
