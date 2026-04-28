@@ -192,14 +192,6 @@ export default function Home() {
 
   const [showFeed, setShowFeed] = useState(true);
 
-  const featured = [
-    { title: 'Swiss Alps', author: 'MountainLens', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
-    { title: 'Tokyo Nights', author: 'UrbanView', color: 'linear-gradient(135deg, #7c3aed, #db2777)' },
-    { title: 'Maldives', author: 'OceanDrone', color: 'linear-gradient(135deg, #14b8a6, #0ea5e9)' },
-    { title: 'Iceland', author: 'Nordic360', color: 'linear-gradient(135deg, #6366f1, #8b5cf6)' },
-    { title: 'Santorini', author: 'GreekSky', color: 'linear-gradient(135deg, #f97316, #ec4899)' },
-  ];
-
   const features = [
     { icon: 'Glob', title: 'Federated', desc: 'Connect with Mastodon, PixelFed, and more' },
     { icon: 'Phone', title: 'Native', desc: 'iOS, Android, Web - all synced' },
@@ -258,55 +250,10 @@ export default function Home() {
 
       {view === 'feed' && (
         <div style={styles.feed}>
-          {featured.map((item, i) => (
-            <div key={i} style={styles.feedCard(darkMode)}>
-              <div style={styles.feedHeader}>
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`} style={styles.feedAvatar} alt="" />
-                <div>
-                  <div style={styles.feedUsername}>{item.author}</div>
-                  <div style={styles.feedLocation(darkMode)}>Switzerland</div>
-                </div>
-                <div style={styles.feedActionsRight}>
-                  <svg width={20} height={20} viewBox="0 0 24 24" fill="white" style={{ cursor: 'pointer' }}>
-                    <circle cx="12" cy="12" r="2" />
-                    <circle cx="12" cy="5" r="2" />
-                    <circle cx="12" cy="19" r="2" />
-                  </svg>
-                </div>
-              </div>
-              <div style={{ ...styles.feedImage, background: item.color, position: 'relative' }}>
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 10 }}>
-                  <svg width={48} height={48} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={1.5} style={{ opacity: 0.8 }}>
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    <path d="M2 12h20" />
-                  </svg>
-                </div>
-              </div>
-              <div style={styles.feedActions}>
-                <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />
-                </svg>
-                <div style={styles.feedActionsRight}>
-                  <svg style={styles.feedIcon(darkMode)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                  </svg>
-                </div>
-              </div>
-              <div style={styles.feedLikeCount}>1,247 likes</div>
-              <div style={styles.feedCaption}>
-                <span style={styles.feedCaptionUser}>{item.author}</span>
-                Amazing 360 view from the Swiss Alps! 🏔️ #360 #travel #switzerland
-              </div>
-              <div style={styles.feedTime(darkMode)}>View all 23 comments · 2 hours ago</div>
-            </div>
-          ))}
+          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+            <p style={{ color: secondaryText, marginBottom: 20 }}>Welcome to OmniSee!</p>
+            <p style={{ color: secondaryText, fontSize: '0.9rem' }}>Follow users and topics to see content in your feed.</p>
+          </div>
         </div>
       )}
 
@@ -395,10 +342,8 @@ export default function Home() {
               </div>
             )}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, maxWidth: 470, margin: '0 auto' }}>
-            {featured.slice(0, 6).map((item, i) => (
-              <div key={i} style={{ aspectRatio: '1/1', background: item.color, cursor: 'pointer' }} />
-            ))}
+          <div style={{ textAlign: 'center', padding: '20px', color: secondaryText, fontSize: '0.9rem' }}>
+            No posts yet. Upload your first 360 photo!
           </div>
         </div>
       )}
