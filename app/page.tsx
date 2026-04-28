@@ -69,8 +69,9 @@ export default function Home() {
   const [newAlbumName, setNewAlbumName] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [viewingPost, setViewingPost] = useState<any>(null);
-  const panoramaRef = useRef<HTMLDivElement>(null);
-  const [panoramaRotation, setPanoramaRotation] = useState(0);
+  const [viewRotation, setViewRotation] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
   const [notifications, setNotifications] = useState<string[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const userPosts = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
@@ -401,40 +402,42 @@ export default function Home() {
           <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '1000px', width: '95%', padding: 0, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
             {viewingPost.media_type === 'photo' ? (
               <div 
-                ref={panoramaRef}
+                onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); }}
                 onMouseMove={(e) => {
-                  if (panoramaRef.current) {
-                    const rect = panoramaRef.current.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const rotation = (x / rect.width) * 360 - 180;
-                    setPanoramaRotation(rotation);
+                  if (isDragging) {
+                    const dx = e.clientX - lastPos.x;
+                    setViewRotation(r => ({ ...r, y: r.y + dx * 0.5 }));
+                    setLastPos({ x: e.clientX, y: e.clientY });
                   }
                 }}
+                onMouseUp={() => setIsDragging(false)}
+                onMouseLeave={() => setIsDragging(false)}
                 style={{ 
                   width: '100%', 
                   height: '500px', 
                   overflow: 'hidden', 
-                  cursor: 'grab',
+                  cursor: isDragging ? 'grabbing' : 'grab',
                   background: '#000',
-                  position: 'relative'
+                  position: 'relative',
+                  perspective: '1000px'
                 }}
               >
                 <img 
                   src={viewingPost.media_url} 
                   alt="360" 
                   style={{ 
-                    width: '200%', 
+                    width: '100%', 
                     height: '100%', 
                     objectFit: 'cover',
-                    marginLeft: `${-50 + (panoramaRotation / 360) * 100}%`,
-                    transition: 'margin-left 0.1s ease-out',
+                    transform: `rotateY(${viewRotation.y}deg)`,
+                    transition: isDragging ? 'none' : 'transform 0.1s ease-out',
                     pointerEvents: 'none',
                     userSelect: 'none'
                   }}
                   draggable={false}
                 />
-                <div style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: '0.8rem', background: 'rgba(0,0,0,0.5)', padding: '4px 12px', borderRadius: 20 }}>
-                  Move mouse to pan 360
+                <div style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: '0.8rem', background: 'rgba(0,0,0,0.5)', padding: '4px 12px', borderRadius: 20, zIndex: 10 }}>
+                  Click and drag to view 360
                 </div>
               </div>
             ) : (
