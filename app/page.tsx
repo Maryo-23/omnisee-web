@@ -76,6 +76,7 @@ export default function Home() {
   const [showTopicModal, setShowTopicModal] = useState(false);
   const [newTopicName, setNewTopicName] = useState('');
   const [newTopicDesc, setNewTopicDesc] = useState('');
+  const [newTopicEmoji, setNewTopicEmoji] = useState('');
 
   const topics = [
     { id: 'mountains', name: 'Mountains', emoji: '🏔️', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
@@ -469,7 +470,7 @@ export default function Home() {
                     }}
                     style={{ padding: 16, background: topic.color || 'rgba(99,102,241,0.3)', borderRadius: 12, cursor: 'pointer' }}
                   >
-                    <div style={{ fontSize: '1.5rem' }}>{(topic as any).emoji || '📷'}</div>
+                    <div style={{ fontSize: '1.5rem' }}>{(topic as any).emoji || ''}</div>
                     <div style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem', marginTop: 8 }}>{(topic as any).name || topic.name}</div>
                     {(topic as any).description && <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', marginTop: 4 }}>{(topic as any).description}</div>}
                   </div>
@@ -881,14 +882,35 @@ export default function Home() {
               value={newTopicDesc}
               onChange={(e) => setNewTopicDesc(e.target.value)}
             />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8, padding: '8px', background: isDark ? '#262626' : '#F5F5F5', borderRadius: 8 }}>
+              {['📷', '🏔️', '🌊', '🏙️', '🌲', '🌅', '🚀', '🎮', '🎨', '📸', '🌍', '🏖️'].map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => setNewTopicEmoji(newTopicEmoji === emoji ? '' : emoji)}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    fontSize: '1.1rem',
+                    border: newTopicEmoji === emoji ? '2px solid #6366F1' : '1px solid #DBDBDB',
+                    borderRadius: 6,
+                    background: 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
               <button 
                 onClick={() => {
                   if (!newTopicName.trim()) return;
                   const id = newTopicName.toLowerCase().replace(/\s+/g, '-');
-                  setCustomTopics([...customTopics, { id, name: newTopicName, description: newTopicDesc, emoji: '📷' }]);
+                  setCustomTopics([...customTopics, { id, name: newTopicName, description: newTopicDesc, emoji: newTopicEmoji }]);
                   setNewTopicName('');
                   setNewTopicDesc('');
+                  setNewTopicEmoji('');
                   setShowTopicModal(false);
                 }}
                 style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
@@ -896,7 +918,7 @@ export default function Home() {
                 Create
               </button>
               <button 
-                onClick={() => { setShowTopicModal(false); setNewTopicName(''); setNewTopicDesc(''); }}
+                onClick={() => { setShowTopicModal(false); setNewTopicName(''); setNewTopicDesc(''); setNewTopicEmoji(''); }}
                 style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
               >
                 Cancel
