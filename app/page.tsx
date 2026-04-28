@@ -341,7 +341,7 @@ export default function Home() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Federated</div>
                 <div style={{ fontSize: '0.75rem', color: secondaryText }}>Your AT Protocol address:</div>
-                <div style={{ fontSize: '0.75rem', color: '#8B5CF6', fontFamily: 'monospace' }}>@{user?.username}@omnisee.app</div>
+                <div style={{ fontSize: '0.75rem', color: '#8B5CF6', fontFamily: 'monospace' }}>@{user?.username}@{user?.customDomain || 'omnisee.app'}</div>
               </div>
               <button 
                 onClick={() => {
@@ -532,6 +532,11 @@ export default function Home() {
                   <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="username" placeholder="Username" value={user?.username || ''} onChange={(e) => setUser(user ? { ...user, username: e.target.value } : null)} />
                   <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="name" placeholder="Real Name (optional)" value={user?.display_name || ''} onChange={(e) => setUser(user ? { ...user, display_name: e.target.value } : null)} />
                   <textarea style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', minHeight: '80px', resize: 'vertical' }} name="bio" placeholder="Bio" value={user?.bio || ''} onChange={(e) => setUser(user ? { ...user, bio: e.target.value } : null)} />
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: '0.85rem', color: secondaryText, display: 'block', marginBottom: 8 }}>Custom Domain (optional)</label>
+                    <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="customDomain" placeholder="andrew.com" value={user?.customDomain || ''} onChange={(e) => setUser(user ? { ...user, customDomain: e.target.value } : null)} />
+                    <p style={{ fontSize: '0.75rem', color: '#8B5CF6', marginTop: 4 }}>Your profile will be at @{user?.username}@yourdomain.com</p>
+                  </div>
                 </>
               ) : (
                 <>
