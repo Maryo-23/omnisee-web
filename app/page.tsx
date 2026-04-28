@@ -617,11 +617,11 @@ export default function Home() {
             <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30, color: isDark ? 'white' : '#262626' }}>Upload 360 Content</h3>
             <form onSubmit={handleUpload}>
               <div style={{ border: '2px dashed #6366F1', borderRadius: '12px', padding: '40px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }}>
-                <input type="file" accept="image/*,video/*" style={{ display: 'none' }} id="fileInput" />
+                <input type="file" accept="image/*,video/*,.mp4,.mov,.avi,.mkv,.webm,.m4v" style={{ display: 'none' }} id="fileInput" />
                 <label htmlFor="fileInput" style={{ cursor: 'pointer' }}>
                   <div style={{ fontSize: '3rem', marginBottom: 12 }}>Camera</div>
                   <p style={{ color: isDark ? '#A1A1AA' : '#71717A' }}>Click to select a file</p>
-                  <p style={{ color: isDark ? '#71717A' : '#A1A1AA', fontSize: '0.8rem', marginTop: 8 }}>360 photos and videos supported</p>
+                  <p style={{ color: isDark ? '#71717A' : '#A1A1AA', fontSize: '0.8rem', marginTop: 8 }}>All 360 formats supported (Theta, Insta360, DSLR, etc.)</p>
                 </label>
               </div>
               {albums.length > 0 && (
