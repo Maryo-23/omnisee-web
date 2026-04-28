@@ -73,6 +73,18 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
   const startRotation = useRef(0);
+  const viewerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!viewingPost) return;
+      if (e.key === 'ArrowLeft') setViewRotation(r => r + 15);
+      if (e.key === 'ArrowRight') setViewRotation(r => r - 15);
+      if (e.key === 'Escape') setViewingPost(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [viewingPost]);
   const [notifications, setNotifications] = useState<string[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const userPosts = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
@@ -434,6 +446,7 @@ export default function Home() {
           </button>
           {viewingPost.media_type === 'photo' ? (
               <div 
+                ref={viewerRef}
                 onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); startRotation.current = viewRotation; }}
                 onMouseMove={(e) => {
                   if (isDragging) {
@@ -443,6 +456,14 @@ export default function Home() {
                 }}
                 onMouseUp={() => setIsDragging(false)}
                 onMouseLeave={() => setIsDragging(false)}
+                onTouchStart={(e) => { setIsDragging(true); setLastPos({ x: e.touches[0].clientX, y: e.touches[0].clientY }); startRotation.current = viewRotation; }}
+                onTouchMove={(e) => {
+                  if (isDragging) {
+                    const dx = e.touches[0].clientX - lastPos.x;
+                    setViewRotation(startRotation.current + dx * 0.5);
+                  }
+                }}
+                onTouchEnd={() => setIsDragging(false)}
                 style={{ 
                   flex: 1,
                   overflow: 'hidden', 
@@ -465,7 +486,7 @@ export default function Home() {
                   draggable={false}
                 />
                 <div style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: '1rem', background: 'rgba(0,0,0,0.5)', padding: '8px 16px', borderRadius: 20 }}>
-                  Click and drag to view 360
+                  Click and drag or use arrow keys to view 360
                 </div>
               </div>
             ) : (
