@@ -460,7 +460,7 @@ export default function Home() {
                 + Create Custom Topic
               </button>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-                {([...customTopics, ...topics] as any[]).filter(t => !topicSearch || t.name.toLowerCase().includes(topicSearch.toLowerCase())).map(topic => (
+                {(customTopics as any[]).filter(t => !topicSearch || t.name.toLowerCase().includes(topicSearch.toLowerCase())).map(topic => (
                   <div 
                     key={topic.id}
                     onClick={() => {
