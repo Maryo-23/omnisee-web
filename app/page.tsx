@@ -68,6 +68,7 @@ export default function Home() {
   const [showAlbumModal, setShowAlbumModal] = useState(false);
   const [newAlbumName, setNewAlbumName] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
+  const [viewingPost, setViewingPost] = useState<any>(null);
   const [notifications, setNotifications] = useState<string[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const userPosts = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
@@ -78,6 +79,10 @@ export default function Home() {
       await fetch(`https://omnisee-backend.onrender.com/api/posts/${postId}`, { method: 'DELETE' });
       fetchPosts();
     } catch (err) { console.error(err); }
+  };
+
+  const viewPost = (post: any) => {
+    setViewingPost(post);
   };
   const [following, setFollowing] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -386,20 +391,62 @@ export default function Home() {
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 8, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', fontSize: '0.75rem', fontWeight: 600 }}>{album.name}</div>
                   </div>
                 ))}
+</div>
+        )}
+
+      {viewingPost && (
+        <div style={styles.modal} onClick={() => setViewingPost(null)}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '800px', width: '90%', padding: 0, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+            {viewingPost.media_type === 'photo' ? (
+              <img 
+                src={viewingPost.media_url} 
+                alt="360" 
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+                draggable={false}
+              />
+            ) : (
+              <video 
+                src={viewingPost.media_url} 
+                controls 
+                style={{ width: '100%', display: 'block' }}
+                autoPlay
+              />
+            )}
+            {viewingPost.caption && (
+              <div style={{ padding: 16, color: isDark ? 'white' : '#262626' }}>
+                {viewingPost.caption}
               </div>
             )}
+            <div style={{ display: 'flex', gap: 8, padding: 16, borderTop: `1px solid ${isDark ? '#262626' : '#E5E5E5'}` }}>
+              <button 
+                onClick={() => { deletePost(viewingPost.id); setViewingPost(null); }}
+                style={{ padding: '8px 16px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+              >
+                Delete
+              </button>
+              <button 
+                onClick={() => setViewingPost(null)}
+                style={{ padding: '8px 16px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+              >
+                Close
+              </button>
+            </div>
           </div>
+        </div>
+      )}
+    </div>
           <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
             <h3 style={{ fontWeight: 600, marginBottom: 16 }}>Posts</h3>
             {userPosts.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, position: 'relative' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
                 {userPosts.map((post, i) => (
                   <div 
                     key={i} 
-                    onClick={() => deletePost(post.id)}
-                    style={{ aspectRatio: '1/1', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', cursor: 'pointer', position: 'relative' }}
+                    onClick={() => viewPost(post)}
+                    onContextMenu={(e) => { e.preventDefault(); deletePost(post.id); }}
+                    style={{ aspectRatio: '1/1', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', cursor: 'pointer' }}
                   >
-                    <div style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.5)', borderRadius: '50%', padding: 4 }}>
+                    <div style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.5)', borderRadius: '50%', padding: 4, display: 'none' }}>
                       <svg width={16} height={16} viewBox="0 0 24 24" fill="white"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
                     </div>
                   </div>
