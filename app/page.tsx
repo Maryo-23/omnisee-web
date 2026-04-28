@@ -398,9 +398,40 @@ export default function Home() {
         )}
 
       {viewingPost && (
-        <div style={styles.modal} onClick={() => setViewingPost(null)}>
-          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '1000px', width: '95%', padding: 0, overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
-            {viewingPost.media_type === 'photo' ? (
+        <div 
+          style={{ 
+            position: 'fixed', 
+            inset: 0, 
+            background: '#000', 
+            zIndex: 200,
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+          onClick={() => setViewingPost(null)}
+        >
+          <button 
+            onClick={() => setViewingPost(null)}
+            style={{
+              position: 'absolute',
+              top: 20,
+              right: 20,
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(255,255,255,0.2)',
+              color: 'white',
+              fontSize: 24,
+              cursor: 'pointer',
+              zIndex: 201,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            ✕
+          </button>
+          {viewingPost.media_type === 'photo' ? (
               <div 
                 onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); }}
                 onMouseMove={(e) => {
@@ -413,12 +444,10 @@ export default function Home() {
                 onMouseUp={() => setIsDragging(false)}
                 onMouseLeave={() => setIsDragging(false)}
                 style={{ 
-                  width: '100%', 
-                  height: '500px', 
+                  flex: 1,
                   overflow: 'hidden', 
                   cursor: isDragging ? 'grabbing' : 'grab',
                   background: '#000',
-                  position: 'relative',
                   perspective: '1000px'
                 }}
               >
@@ -436,7 +465,7 @@ export default function Home() {
                   }}
                   draggable={false}
                 />
-                <div style={{ position: 'absolute', bottom: 16, left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: '0.8rem', background: 'rgba(0,0,0,0.5)', padding: '4px 12px', borderRadius: 20, zIndex: 10 }}>
+                <div style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: '1rem', background: 'rgba(0,0,0,0.5)', padding: '8px 16px', borderRadius: 20 }}>
                   Click and drag to view 360
                 </div>
               </div>
@@ -444,30 +473,18 @@ export default function Home() {
               <video 
                 src={viewingPost.media_url} 
                 controls 
-                style={{ width: '100%', display: 'block' }}
+                style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
                 autoPlay
               />
             )}
-            {viewingPost.caption && (
-              <div style={{ padding: 16, color: isDark ? 'white' : '#262626' }}>
-                {viewingPost.caption}
-              </div>
-            )}
-            <div style={{ display: 'flex', gap: 8, padding: 16, borderTop: `1px solid ${isDark ? '#262626' : '#E5E5E5'}` }}>
+          <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20, display: 'flex', gap: 12 }}>
               <button 
                 onClick={() => { deletePost(viewingPost.id); setViewingPost(null); }}
-                style={{ flex: 1, padding: '12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
+                style={{ flex: 1, padding: '14px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
               >
                 Delete Post
               </button>
-              <button 
-                onClick={() => setViewingPost(null)}
-                style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
-              >
-                Close
-              </button>
             </div>
-          </div>
         </div>
       )}
     </div>
