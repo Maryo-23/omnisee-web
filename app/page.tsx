@@ -427,15 +427,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section style={{ ...styles.section, background: 'linear-gradient(180deg, transparent, rgba(99,102,241,0.1))' }}>
-        <div style={{ textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 'bold', marginBottom: 20 }}>Ready to dive in?</h2>
-          <p style={{ fontSize: '1.2rem', color: '#A1A1AA', marginBottom: 40 }}>Join the spatial social revolution.</p>
-          <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ ...styles.btn, background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white' }}>
-            Create Free Account
-          </button>
-        </div>
-      </section>
+      {!user && (
+        <section style={{ ...styles.section, background: 'linear-gradient(180deg, transparent, rgba(99,102,241,0.1))' }}>
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 'bold', marginBottom: 20 }}>Ready to dive in?</h2>
+            <p style={{ fontSize: '1.2rem', color: '#A1A1AA', marginBottom: 40 }}>Join the spatial social revolution.</p>
+            <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ ...styles.btn, background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white' }}>
+              Create Free Account
+            </button>
+          </div>
+        </section>
+      )}
 
       <footer style={styles.footer}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
