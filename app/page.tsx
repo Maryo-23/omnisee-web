@@ -420,13 +420,13 @@ export default function Home() {
             <div style={{ display: 'flex', gap: 8, padding: 16, borderTop: `1px solid ${isDark ? '#262626' : '#E5E5E5'}` }}>
               <button 
                 onClick={() => { deletePost(viewingPost.id); setViewingPost(null); }}
-                style={{ padding: '8px 16px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+                style={{ flex: 1, padding: '12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
               >
-                Delete
+                Delete Post
               </button>
               <button 
                 onClick={() => setViewingPost(null)}
-                style={{ padding: '8px 16px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+                style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}
               >
                 Close
               </button>
