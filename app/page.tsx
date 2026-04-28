@@ -69,6 +69,7 @@ export default function Home() {
   const [newAlbumName, setNewAlbumName] = useState('');
   const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [notifications, setNotifications] = useState<string[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [following, setFollowing] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -108,7 +109,18 @@ export default function Home() {
     }
     const savedFollowing = localStorage.getItem('following');
     if (savedFollowing) setFollowing(JSON.parse(savedFollowing));
+    fetchPosts();
   }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const res = await fetch('https://omnisee-backend.onrender.com/api/posts');
+      const data = await res.json();
+      setPosts(data);
+    } catch (err) {
+      console.error('Failed to fetch posts');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -201,6 +213,7 @@ export default function Home() {
       setSuccess('Posted successfully!');
       setUploadCaption('');
       setSelectedFile(null);
+      fetchPosts();
       setTimeout(() => setShowUpload(false), 1500);
     } catch (err: any) {
       setError(err.message);
@@ -288,7 +301,7 @@ export default function Home() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', gap: 20, textAlign: 'center' }}>
-                  <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>posts</div></div>
+                  <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>{posts.filter(p => p.user_id === user?.id).length}</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>posts</div></div>
                   <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>followers</div></div>
                   <div><div style={{ fontWeight: 600, fontSize: '1.1rem' }}>0</div><div style={{ fontSize: '0.85rem', color: secondaryText }}>following</div></div>
                 </div>
@@ -362,7 +375,7 @@ export default function Home() {
             )}
           </div>
           <div style={{ textAlign: 'center', padding: '20px', color: secondaryText, fontSize: '0.9rem' }}>
-            No posts yet. Upload your first 360 photo!
+            {posts.length === 0 ? 'No posts yet. Upload your first 360 photo!' : `${posts.length} posts`}
           </div>
         </div>
       )}
