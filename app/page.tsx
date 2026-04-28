@@ -29,9 +29,9 @@ const styles: Record<string, any> = {
   heroTitle: { fontSize: 'clamp(3rem, 8vw, 6rem)', fontWeight: 'bold', lineHeight: 1.1, marginBottom: '24px' },
   heroGradient: { background: 'linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
   heroSubtitle: { fontSize: 'clamp(1.1rem, 2vw, 1.4rem)', color: '#A1A1AA', marginBottom: '40px', maxWidth: '500px', margin: '0 auto 40px' },
-  btn: { padding: '18px 36px', borderRadius: '50px', fontWeight: 600, fontSize: '1.1rem', cursor: 'pointer', transition: 'all 0.3s', border: 'none' },
-  btnPrimary: { background: 'white', color: '#0F0F23' },
-  btnSecondary: { background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white' },
+  btn: (isDark: boolean) => ({ padding: '18px 36px', borderRadius: '50px', fontWeight: 600, fontSize: '1.1rem', cursor: 'pointer', transition: 'all 0.3s', border: 'none', background: isDark ? 'white' : 'white', color: isDark ? '#0F0F23' : '#0F0F23' }),
+  btnPrimary: (isDark: boolean) => ({ background: isDark ? 'white' : 'white', color: '#0F0F23' }),
+  btnSecondary: (isDark: boolean) => ({ background: isDark ? 'transparent' : 'white', border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#DBDBDB'}`, color: isDark ? 'white' : '#262626' }),
   section: { padding: '100px 20px', maxWidth: '1200px', margin: '0 auto' },
   card: { background: 'rgba(26,26,46,0.5)', borderRadius: '24px', border: '1px solid rgba(45,45,74,0.5)', padding: '40px', transition: 'all 0.3s' },
   showcase: { display: 'flex', gap: '30px', overflowX: 'auto', paddingBottom: '20px', scrollSnapType: 'x mandatory' },
@@ -232,15 +232,15 @@ export default function Home() {
             </p>
             
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ ...styles.btn, ...styles.btnPrimary }}>
+              <button onClick={() => { setMode('signup'); setShowModal(true); }} style={{ ...styles.btn(isDark), ...styles.btnPrimary(isDark) }}>
                 Get Started
               </button>
               {user ? (
-                <button onClick={() => setShowFeed(true)} style={{ ...styles.btn, ...styles.btnSecondary }}>
+                <button onClick={() => setShowFeed(true)} style={{ ...styles.btn(isDark), ...styles.btnSecondary(isDark) }}>
                   View Feed
                 </button>
               ) : (
-                <button onClick={() => { setMode('login'); setShowModal(true); }} style={{ ...styles.btn, ...styles.btnSecondary }}>
+                <button onClick={() => { setMode('login'); setShowModal(true); }} style={{ ...styles.btn(isDark), ...styles.btnSecondary(isDark) }}>
                   Sign In
                 </button>
               )}
