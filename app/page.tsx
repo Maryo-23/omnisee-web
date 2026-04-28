@@ -73,6 +73,10 @@ export default function Home() {
   const [tagInput, setTagInput] = useState('');
   const [topicSearch, setTopicSearch] = useState('');
   const [customTopics, setCustomTopics] = useState<{id: string, name: string, description: string, emoji: string}[]>([]);
+  const [showTopicModal, setShowTopicModal] = useState(false);
+  const [newTopicName, setNewTopicName] = useState('');
+  const [newTopicDesc, setNewTopicDesc] = useState('');
+  const [newTopicEmoji, setNewTopicEmoji] = useState('📷');
 
   const topics = [
     { id: 'mountains', name: 'Mountains', emoji: '🏔️', color: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' },
@@ -446,15 +450,7 @@ export default function Home() {
                 onChange={(e) => setTopicSearch(e.target.value)}
               />
               <button 
-                onClick={() => {
-                  const name = prompt('Topic name:');
-                  if (name) {
-                    const desc = prompt('Description:') || '';
-                    const emoji = prompt('Emoji (optional):') || '📷';
-                    const id = name.toLowerCase().replace(/\s+/g, '-');
-                    setCustomTopics([...customTopics, { id, name, description: desc, emoji }]);
-                  }
-                }}
+                onClick={() => setShowTopicModal(true)}
                 style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px dashed #8B5CF6', background: 'transparent', color: '#8B5CF6', cursor: 'pointer', fontSize: '0.9rem', marginBottom: 16 }}
               >
                 + Create Custom Topic
@@ -856,6 +852,54 @@ export default function Home() {
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {showTopicModal && (
+        <div style={styles.modal} onClick={() => setShowTopicModal(false)}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: 20, color: isDark ? 'white' : '#262626' }}>Create Topic</h3>
+            <input 
+              style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} 
+              placeholder="Topic name (e.g., Mountains)" 
+              value={newTopicName}
+              onChange={(e) => setNewTopicName(e.target.value)}
+            />
+            <textarea 
+              style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', minHeight: '80px', resize: 'vertical' }} 
+              placeholder="Description - what kind of posts will be in this topic?" 
+              value={newTopicDesc}
+              onChange={(e) => setNewTopicDesc(e.target.value)}
+            />
+            <input 
+              style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} 
+              placeholder="Emoji (optional)" 
+              value={newTopicEmoji}
+              onChange={(e) => setNewTopicEmoji(e.target.value)}
+            />
+            <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+              <button 
+                onClick={() => {
+                  if (!newTopicName.trim()) return;
+                  const id = newTopicName.toLowerCase().replace(/\s+/g, '-');
+                  setCustomTopics([...customTopics, { id, name: newTopicName, description: newTopicDesc, emoji: newTopicEmoji || '📷' }]);
+                  setNewTopicName('');
+                  setNewTopicDesc('');
+                  setNewTopicEmoji('📷');
+                  setShowTopicModal(false);
+                }}
+                style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Create
+              </button>
+              <button 
+                onClick={() => { setShowTopicModal(false); setNewTopicName(''); setNewTopicDesc(''); setNewTopicEmoji('📷'); }}
+                style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
