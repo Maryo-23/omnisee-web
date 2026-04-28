@@ -58,7 +58,7 @@ export default function Home() {
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [view, setView] = useState<'feed'|'profile'>('signup');
+  const [view, setView] = useState<'feed'|'profile'>('feed');
 
   const isDark = darkMode;
   const containerStyle = { minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' };
@@ -455,7 +455,7 @@ export default function Home() {
 
       {showModal && (
         <div style={styles.modal} onClick={() => setShowModal(false)}>
-          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5' }} onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30, color: isDark ? 'white' : '#262626' }}>
               {mode === 'signup' ? 'Join OmniSee' : mode === 'changepassword' ? 'Change Password' : mode === 'editprofile' ? 'Edit Profile' : 'Welcome Back'}
             </h3>
@@ -481,14 +481,14 @@ export default function Home() {
                       <div style={{ color: '#0095F6', fontSize: '0.85rem', marginTop: 8 }}>Change profile photo</div>
                     </label>
                   </div>
-                  <input style={styles.input} name="name" placeholder="Name (optional)" value={user?.display_name || ''} onChange={(e) => setUser(user ? { ...user, display_name: e.target.value } : null)} />
-                  <textarea style={{ ...styles.input, minHeight: '80px', resize: 'vertical' }} name="bio" placeholder="Bio" value={user?.bio || ''} onChange={(e) => setUser(user ? { ...user, bio: e.target.value } : null)} />
+                  <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="name" placeholder="Name (optional)" value={user?.display_name || ''} onChange={(e) => setUser(user ? { ...user, display_name: e.target.value } : null)} />
+                  <textarea style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', minHeight: '80px', resize: 'vertical' }} name="bio" placeholder="Bio" value={user?.bio || ''} onChange={(e) => setUser(user ? { ...user, bio: e.target.value } : null)} />
                 </>
               ) : (
                 <>
-                  {mode === 'signup' && <input style={styles.input} name="username" placeholder="Username" required />}
-                  <input style={styles.input} name="email" placeholder="Email" type="email" required />
-                  <input style={styles.input} name="password" placeholder="Password" type="password" required />
+                  {mode === 'signup' && <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="username" placeholder="Username" required />}
+                  <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="email" placeholder="Email" type="email" required />
+                  <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} name="password" placeholder="Password" type="password" required />
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, cursor: 'pointer' }}>
                     <input type="checkbox" name="keepSignedIn" defaultChecked={false} />
                     <span style={{ fontSize: '0.85rem', color: isDark ? '#A1A1AA' : '#8E8E8E' }}>Keep me signed in</span>
@@ -525,24 +525,24 @@ export default function Home() {
 
       {showUpload && (
         <div style={styles.modal} onClick={() => setShowUpload(false)}>
-          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30 }}>Upload 360 Content</h3>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: 30, color: isDark ? 'white' : '#262626' }}>Upload 360 Content</h3>
             <form onSubmit={handleUpload}>
               <div style={{ border: '2px dashed #6366F1', borderRadius: '12px', padding: '40px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }}>
                 <input type="file" accept="image/*,video/*" style={{ display: 'none' }} id="fileInput" />
                 <label htmlFor="fileInput" style={{ cursor: 'pointer' }}>
                   <div style={{ fontSize: '3rem', marginBottom: 12 }}>Camera</div>
-                  <p style={{ color: '#A1A1AA' }}>Click to select a file</p>
-                  <p style={{ color: '#71717A', fontSize: '0.8rem', marginTop: 8 }}>360 photos and videos supported</p>
+                  <p style={{ color: isDark ? '#A1A1AA' : '#71717A' }}>Click to select a file</p>
+                  <p style={{ color: isDark ? '#71717A' : '#A1A1AA', fontSize: '0.8rem', marginTop: 8 }}>360 photos and videos supported</p>
                 </label>
               </div>
-              <textarea style={{ ...styles.input, minHeight: '100px', resize: 'vertical' }} placeholder="Write a caption..." value={uploadCaption} onChange={e => setUploadCaption(e.target.value)} />
+              <textarea style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', minHeight: '100px', resize: 'vertical' }} placeholder="Write a caption..." value={uploadCaption} onChange={e => setUploadCaption(e.target.value)} />
               {error && <p style={{ color: '#ef4444', marginBottom: 16 }}>{error}</p>}
               {success && <p style={{ color: '#4ade80', marginBottom: 16 }}>{success}</p>}
               <button type="submit" disabled={uploading} style={{ ...styles.btn, width: '100%', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', marginTop: 10 }}>
                 {uploading ? 'Uploading...' : 'Post'}
               </button>
-              <button type="button" onClick={() => setShowUpload(false)} style={{ color: '#A1A1AA', background: 'none', border: 'none', cursor: 'pointer', marginTop: 16, width: '100%' }}>
+              <button type="button" onClick={() => setShowUpload(false)} style={{ color: isDark ? '#A1A1AA' : '#71717A', background: 'none', border: 'none', cursor: 'pointer', marginTop: 16, width: '100%' }}>
                 Cancel
               </button>
             </form>
