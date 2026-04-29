@@ -94,6 +94,11 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         resizeHandler = () => viewer.resize();
         window.addEventListener('resize', resizeHandler);
 
+        // Ensure canvas is properly sized after flex layout settles
+        viewer.resize();
+        setTimeout(() => viewer.resize(), 100);
+        setTimeout(() => viewer.resize(), 500);
+
         if (mounted) setLoading(false);
       } catch (err) {
         console.error('Marzipano init error:', err);
@@ -192,11 +197,13 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
           position: 'relative',
           background: '#000',
           overflow: 'hidden',
+          width: '100%',
+          height: '100%',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Marzipano Canvas */}
-        <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
+        <div ref={containerRef} style={{ position: 'absolute', inset: 0, touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', cursor: 'move' }} />
 
         {/* Loading */}
         {loading && (
