@@ -32,6 +32,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [comments, setComments] = useState<any[]>([]);
   const [commentText, setCommentText] = useState('');
   const [liked, setLiked] = useState(false);
@@ -47,20 +48,21 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
 
     const init = async () => {
       try {
+        console.log('[OmniSee] Starting Marzipano init...');
         const Marzipano = (await import('marzipano')).default;
         if (!mounted || !containerRef.current) return;
 
         const el = containerRef.current;
+        console.log('[OmniSee] Container:', el.clientWidth, 'x', el.clientHeight);
 
-        // Force explicit pixel dimensions before Marzipano reads them
-        const rect = el.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) {
-          // Container not ready, retry shortly
-          setTimeout(() => { if (mounted) init(); }, 200);
+        if (el.clientWidth === 0 || el.clientHeight === 0) {
+          console.warn('[OmniSee] Container has zero size, retrying...');
+          setTimeout(() => { if (mounted) init(); }, 300);
           return;
         }
 
         viewer = new Marzipano.Viewer(el, { stageType: 'webgl' });
+        console.log('[OmniSee] Marzipano Viewer created');
 
         const source = Marzipano.ImageUrlSource.fromString(
           post.media_url,
@@ -76,16 +78,29 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
 
         const scene = viewer.createScene({ source, geometry, view, pinFirstLevel: true });
         scene.switchTo();
+        console.log('[OmniSee] Scene switched');
 
         const controls = viewer.controls();
+        console.log('[OmniSee] Controls methods:', Object.keys(controls));
+
         controls.registerMethod('scrollZoom', new Marzipano.ScrollZoomControlMethod());
         controls.registerMethod('drag', new Marzipano.DragControlMethod());
         controls.registerMethod('pinchZoom', new Marzipano.PinchZoomControlMethod());
-        controls.enableMethod('scrollZoom');
-        controls.enableMethod('drag');
-        controls.enableMethod('pinchZoom');
 
-        // Resize after a short delay to catch any layout settling
+        // Enable methods with error handling
+        ['scrollZoom', 'drag', 'pinchZoom'].forEach((method) => {
+          try {
+            controls.enableMethod(method);
+            console.log('[OmniSee] Enabled method:', method);
+          } catch (e: any) {
+            console.error('[OmniSee] Failed to enable', method, e.message);
+          }
+        });
+
+        // Verify canvas exists
+        const canvas = el.querySelector('canvas');
+        console.log('[OmniSee] Canvas found:', !!canvas, canvas?.clientWidth, canvas?.clientHeight);
+
         const doResize = () => { if (viewer) viewer.resize(); };
         doResize();
         setTimeout(doResize, 100);
@@ -94,22 +109,28 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
 
         if (mounted) {
           setLoading(false);
-          // Store resize cleanup
-          (viewer as any).__resizeCleanup = () => window.removeEventListener('resize', doResize);
+          console.log('[OmniSee] Init complete, loading=false');
         }
-      } catch (err) {
-        console.error('Marzipano init error:', err);
-        if (mounted) { setError(true); setLoading(false); }
+
+        // Store cleanup
+        (viewer as any).__cleanup = () => window.removeEventListener('resize', doResize);
+      } catch (err: any) {
+        console.error('[OmniSee] Marzipano init error:', err);
+        if (mounted) {
+          setError(true);
+          setErrorMsg(err.message || 'Failed to load viewer');
+          setLoading(false);
+        }
       }
     };
 
-    // Wait for layout to settle before initializing
-    setTimeout(() => { if (mounted) init(); }, 100);
+    // Delay init to ensure layout is settled
+    setTimeout(() => { if (mounted) init(); }, 200);
 
     return () => {
       mounted = false;
       if (viewer) {
-        if ((viewer as any).__resizeCleanup) (viewer as any).__resizeCleanup();
+        if ((viewer as any).__cleanup) (viewer as any).__cleanup();
         if (typeof viewer.destroy === 'function') viewer.destroy();
       }
     };
@@ -170,7 +191,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         style={{ flex: 1, position: 'relative', background: '#000', overflow: 'hidden' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Marzipano Canvas - NO absolute positioning, fills parent naturally */}
+        {/* Marzipano Canvas */}
         <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', cursor: 'move' }} />
 
         {/* Loading */}
@@ -181,9 +202,13 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         )}
 
         {/* Error fallback */}
-        {error && post?.media_url && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', zIndex: 10, pointerEvents: 'none' }}>
-            <img src={post.media_url} alt="360 panorama" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+        {(error || errorMsg) && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#000', zIndex: 10, pointerEvents: 'none', padding: 20, textAlign: 'center' }}>
+            <div style={{ color: '#ef4444', fontSize: 16, marginBottom: 12 }}>Viewer Error</div>
+            <div style={{ color: '#fff', fontSize: 14, marginBottom: 20 }}>{errorMsg || 'Failed to load 360 viewer'}</div>
+            {post?.media_url && (
+              <img src={post.media_url} alt="360 panorama" style={{ maxWidth: '100%', maxHeight: '60%', objectFit: 'contain' }} />
+            )}
           </div>
         )}
 
