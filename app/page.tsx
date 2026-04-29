@@ -305,15 +305,16 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Upload failed');
+      const newPost = data.post || data;
       setPosts(prev => {
-        const updated = [data, ...prev];
+        const updated = [newPost, ...prev];
         localStorage.setItem('omnisee_posts', JSON.stringify(updated));
         return updated;
       });
       const albumIdx = localStorage.getItem('pending_album');
       if (albumIdx !== null) {
         const newAlbums = [...albums];
-        newAlbums[parseInt(albumIdx)].photos.push(data.media_url);
+        newAlbums[parseInt(albumIdx)].photos.push(newPost.media_url);
         setAlbums(newAlbums);
         localStorage.setItem('omnisee_albums', JSON.stringify(newAlbums));
         localStorage.removeItem('pending_album');
