@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 interface PanoramaViewerProps {
   post: any;
@@ -40,7 +40,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
 
   const API = 'https://omnisee-backend.onrender.com';
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!containerRef.current || !post?.media_url) return;
 
     let mounted = true;
@@ -52,7 +52,12 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         const Marzipano = (await import('marzipano')).default;
         if (!mounted || !containerRef.current) return;
 
-        viewer = new Marzipano.Viewer(containerRef.current, {
+        // Ensure container has explicit dimensions before Marzipano reads them
+        const el = containerRef.current;
+        el.style.width = '100%';
+        el.style.height = '100%';
+
+        viewer = new Marzipano.Viewer(el, {
           stageType: 'webgl',
         });
 
@@ -90,14 +95,21 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
           'pinchZoom',
           new Marzipano.PinchZoomControlMethod()
         );
+        if (typeof controls.enable === 'function') {
+          controls.enable();
+        }
 
-        resizeHandler = () => viewer.resize();
+        // Explicitly size the stage to the container pixel dimensions
+        const resize = () => {
+          if (!viewer || !el) return;
+          viewer.resize();
+        };
+        resizeHandler = resize;
         window.addEventListener('resize', resizeHandler);
-
-        // Ensure canvas is properly sized after flex layout settles
-        viewer.resize();
-        setTimeout(() => viewer.resize(), 100);
-        setTimeout(() => viewer.resize(), 500);
+        resize();
+        requestAnimationFrame(resize);
+        setTimeout(resize, 100);
+        setTimeout(resize, 500);
 
         if (mounted) setLoading(false);
       } catch (err) {
@@ -109,7 +121,10 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
       }
     };
 
-    init();
+    // Delay init one frame so flex layout has settled
+    requestAnimationFrame(() => {
+      if (mounted) init();
+    });
 
     return () => {
       mounted = false;
