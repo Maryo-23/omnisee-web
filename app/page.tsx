@@ -1,7 +1,34 @@
 'use client';
 import { useState, CSSProperties, useEffect, useRef } from 'react';
+import PanoramaViewer from './components/PanoramaViewer';
 
 const API = 'https://omnisee-backend.onrender.com';
+
+const exportPosts = () => {
+  const posts = localStorage.getItem('omnisee_posts');
+  if (!posts) return alert('No posts to export');
+  const blob = new Blob([posts], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `omnisee-posts-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+const importPosts = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const posts = JSON.parse(ev.target?.result as string);
+      localStorage.setItem('omnisee_posts', JSON.stringify(posts));
+      window.location.reload();
+    } catch { alert('Invalid file'); }
+  };
+  reader.readAsText(file);
+};
 
 const styles: Record<string, any> = {
   container: (isDark: boolean) => ({ minHeight: '100vh', background: isDark ? 'linear-gradient(180deg, #000000 0%, #121212 100%)' : 'linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%)', color: isDark ? 'white' : '#262626', fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' }),
@@ -69,6 +96,7 @@ export default function Home() {
   const [newAlbumName, setNewAlbumName] = useState('');
 const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [viewingPost, setViewingPost] = useState<any>(null);
+  const [postAuthor, setPostAuthor] = useState<any>(null);
   const [viewRotation, setViewRotation] = useState({ x: 45, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
@@ -82,8 +110,14 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
     if (!confirm('Delete this post?')) return;
     try {
       await fetch(`https://omnisee-backend.onrender.com/api/posts/${postId}`, { method: 'DELETE' });
-      fetchPosts();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error('Backend delete failed, deleting locally');
+    }
+    setPosts(prev => {
+      const updated = prev.filter(p => p.id !== postId);
+      localStorage.setItem('omnisee_posts', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const viewPost = (post: any) => {
@@ -95,6 +129,8 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   const [topicSearch, setTopicSearch] = useState('');
   const [customTopics, setCustomTopics] = useState<{id: string, name: string, description: string, emoji: string}[]>([]);
   const [showTopicModal, setShowTopicModal] = useState(false);
+  const [showAddToAlbum, setShowAddToAlbum] = useState(false);
+  const [albumPhotoSelect, setAlbumPhotoSelect] = useState<number | null>(null);
   const [newTopicName, setNewTopicName] = useState('');
   const [newTopicDesc, setNewTopicDesc] = useState('');
   const [newTopicEmoji, setNewTopicEmoji] = useState('');
@@ -120,7 +156,12 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
   useEffect(() => {
     const saved = localStorage.getItem('user');
     if (saved) {
-      const savedUser = JSON.parse(saved);
+      let savedUser = JSON.parse(saved);
+      // Fix casing for reserved username
+      if (savedUser.username?.toLowerCase() === 'maryo23') {
+        savedUser = { ...savedUser, username: 'Maryo23' };
+        localStorage.setItem('user', JSON.stringify(savedUser));
+      }
       setUser(savedUser);
       setView('feed');
     } else {
@@ -136,13 +177,29 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
     if (user) fetchPosts();
   }, [user?.id]);
 
+  useEffect(() => {
+    if (!viewingPost) {
+      setPostAuthor(null);
+      return;
+    }
+    // Posts from backend already include username, displayName, avatarUrl
+    setPostAuthor({
+      username: viewingPost.username,
+      display_name: viewingPost.displayName,
+      avatar_url: viewingPost.avatarUrl,
+    });
+  }, [viewingPost]);
+
   const fetchPosts = async () => {
     try {
       const res = await fetch('https://omnisee-backend.onrender.com/api/posts');
       const data = await res.json();
       setPosts(data);
+      localStorage.setItem('omnisee_posts', JSON.stringify(data));
     } catch (err) {
-      console.error('Failed to fetch posts');
+      console.error('Failed to fetch posts, loading from localStorage');
+      const saved = localStorage.getItem('omnisee_posts');
+      if (saved) setPosts(JSON.parse(saved));
     }
   };
 
@@ -175,8 +232,23 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       }
 
       if (mode === 'editprofile' && user) {
-        // Use user state directly (already updated via onChange)
-        localStorage.setItem('user', JSON.stringify(user));
+        const res = await fetch('https://omnisee-backend.onrender.com/api/users/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            displayName: user.display_name || '',
+            bio: user.bio || '',
+            avatarUrl: user.avatar_url || '',
+            customDomain: user.customDomain || '',
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Update failed');
+        const updatedUser = data.user;
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        setSuccess('Profile saved!');
         setShowModal(false);
         return;
       }
@@ -195,9 +267,7 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       if (!res.ok) throw new Error(data.error || 'Something went wrong');
       
       if (mode === 'login') {
-        const existingUser = localStorage.getItem('user');
-        const existingUsername = existingUser ? JSON.parse(existingUser).username : null;
-        const userToSave = { ...data.user, username: existingUsername || data.user.username };
+        const userToSave = data.user;
         localStorage.setItem('user', JSON.stringify(userToSave));
         setUser(userToSave);
         fetchPosts();
@@ -235,10 +305,22 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Upload failed');
+      setPosts(prev => {
+        const updated = [data, ...prev];
+        localStorage.setItem('omnisee_posts', JSON.stringify(updated));
+        return updated;
+      });
+      const albumIdx = localStorage.getItem('pending_album');
+      if (albumIdx !== null) {
+        const newAlbums = [...albums];
+        newAlbums[parseInt(albumIdx)].photos.push(data.media_url);
+        setAlbums(newAlbums);
+        localStorage.setItem('omnisee_albums', JSON.stringify(newAlbums));
+        localStorage.removeItem('pending_album');
+      }
       setSuccess('Posted successfully!');
       setUploadCaption('');
       setSelectedFile(null);
-      fetchPosts();
       setTimeout(() => { setShowUpload(false); setView('profile'); }, 1500);
     } catch (err: any) {
       setError(err.message);
@@ -350,6 +432,13 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                   Logout
                 </button>
               </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <button onClick={exportPosts} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: darkMode ? '#262626' : '#f0f0f0', color: textColor, cursor: 'pointer', fontSize: '0.75rem' }}>Export Posts</button>
+                <label style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: darkMode ? '#262626' : '#f0f0f0', color: textColor, cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center', display: 'block' }}>
+                  Import Posts
+                  <input type="file" accept=".json" onChange={importPosts} style={{ display: 'none' }} />
+                </label>
+              </div>
             </div>
           </div>
           <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
@@ -399,33 +488,6 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
 </div>
         )}
 
-      {viewingPost && (
-        <div style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 200 }}>
-          <button onClick={() => setViewingPost(null)} style={{ position: 'absolute', top: 20, right: 20, width: 50, height: 50, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: 24, cursor: 'pointer', zIndex: 201 }}>✕</button>
-          {viewingPost.media_type === 'photo' ? (
-            <div 
-              onMouseDown={(e) => { setIsDragging(true); setLastPos({ x: e.clientX, y: e.clientY }); startRotation.current = { ...viewRotation }; }}
-              onMouseMove={(e) => { if (isDragging) { const dx = e.clientX - lastPos.x, dy = e.clientY - lastPos.y; setViewRotation({ x: Math.max(-85, Math.min(85, startRotation.current.x - dy * 0.3)), y: startRotation.current.y + dx * 0.3 }); setLastPos({ x: e.clientX, y: e.clientY }); }}}
-              onMouseUp={() => setIsDragging(false)}
-              onMouseLeave={() => setIsDragging(false)}
-              onTouchStart={(e) => { setIsDragging(true); setLastPos({ x: e.touches[0].clientX, y: e.touches[0].clientY }); startRotation.current = { ...viewRotation }; }}
-              onTouchMove={(e) => { if (isDragging) { const dx = e.touches[0].clientX - lastPos.x, dy = e.touches[0].clientY - lastPos.y; setViewRotation({ x: Math.max(-85, Math.min(85, startRotation.current.x - dy * 0.3)), y: startRotation.current.y + dx * 0.3 }); }}}
-              onTouchEnd={() => setIsDragging(false)}
-              style={{ width: '100%', height: '100%', cursor: isDragging ? 'grabbing' : 'grab', background: '#111', overflow: 'hidden' }}
-            >
-              <div style={{ width: '100%', height: '100%', perspective: '1000px' }}>
-                <img src={viewingPost.media_url} alt="360" style={{ width: `${100*zoom}%`, height: `${100*zoom}%`, objectFit: 'cover', transform: `rotateX(${-viewRotation.x}deg) rotateY(${viewRotation.y}deg)`, transition: isDragging ? 'none' : 'transform 0.1s', pointerEvents: 'none' }} draggable={false} />
-              </div>
-              <div style={{ position: 'absolute', bottom: 80, left: '50%', transform: 'translateX(-50%)', color: 'white', fontSize: 14, background: 'rgba(0,0,0,0.5)', padding: '8px 16px', borderRadius: 20 }}>Drag to look around</div>
-              <button onClick={(e) => { e.stopPropagation(); setZoom(z => Math.max(0.5, z - 0.25)); }} style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-80px)', width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: 24, cursor: 'pointer' }}>−</button>
-              <button onClick={(e) => { e.stopPropagation(); setZoom(z => Math.min(3, z + 0.25)); }} style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(40px)', width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: 24, cursor: 'pointer' }}>+</button>
-            </div>
-          ) : (
-            <video src={viewingPost.media_url} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay />
-          )}
-          <button onClick={() => { deletePost(viewingPost.id); setViewingPost(null); }} style={{ position: 'absolute', bottom: 20, left: 20, right: 140, padding: 14, background: '#ef4444', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 16 }}>Delete Post</button>
-        </div>
-      )}
     </div>
           <div style={{ padding: '20px 20px', maxWidth: 470, margin: '0 auto' }}>
             <h3 style={{ fontWeight: 600, marginBottom: 16 }}>Posts</h3>
@@ -662,6 +724,13 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                     <p style={{ fontSize: '0.75rem', color: '#8B5CF6', marginTop: 4 }}>Your profile will be at @{user?.username}@yourdomain.com</p>
                     <p style={{ fontSize: '0.7rem', color: secondaryText, marginTop: 4 }}>Supports ActivityPub for Mastodon/PixelFed</p>
                   </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', borderRadius: 8, cursor: 'pointer', marginBottom: 16 }}>
+                    <input type="checkbox" checked={localStorage.getItem('omnisee_local_backup') === 'true'} onChange={(e) => localStorage.setItem('omnisee_local_backup', e.target.checked ? 'true' : 'false')} style={{ width: 18, height: 18 }} />
+                    <div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 500, color: isDark ? 'white' : '#262626' }}>Save posts locally</div>
+                      <div style={{ fontSize: '0.75rem', color: secondaryText }}>Back up posts to your device so they persist even if the server sleeps</div>
+                    </div>
+                  </label>
                 </>
               ) : (
                 <>
@@ -728,24 +797,17 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                   )}
                 </label>
               </div>
-              {albums.length > 0 && (
+              {selectedFile && albums.length > 0 && (
                 <select 
                   style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', marginBottom: 16 }}
                   onChange={(e) => {
-                    if (e.target.value) {
-                      const albumIndex = parseInt(e.target.value);
-                      const newAlbums = [...albums];
-                      newAlbums[albumIndex].photos.push(`photo_${Date.now()}`);
-                      setAlbums(newAlbums);
-                      if (newAlbums[albumIndex].followers?.length) {
-                        setNotifications([...notifications, `New photo added to ${newAlbums[albumIndex].name}!`]);
-                      }
-                    }
+                    if (e.target.value === '') return;
+                    localStorage.setItem('pending_album', e.target.value);
                   }}
                 >
-                  <option value="">Add to album (notifies followers)</option>
+                  <option value="">Add to album (optional)</option>
                   {albums.map((album, i) => (
-                    <option key={i} value={i}>{album.name} ({album.followers?.length || 0} followers)</option>
+                    <option key={i} value={i}>{album.name}</option>
                   ))}
                 </select>
               )}
@@ -917,7 +979,7 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                 <p style={{ fontSize: '0.85rem', color: secondaryText }}>{albums[selectedAlbum].followers?.length || 0} followers</p>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                {user && albums[selectedAlbum].followers?.includes(user.email || user.email?.toLowerCase()) ? (
+{user && albums[selectedAlbum].followers?.includes(user.email || user.email?.toLowerCase()) ? (
                   <button 
                     onClick={() => {
                       const newAlbums = [...albums];
@@ -937,11 +999,17 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                       newAlbums[selectedAlbum].followers.push(user.email || user.email?.toLowerCase());
                       setAlbums(newAlbums);
                     }}
-                    style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#FFD700', color: '#000', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
+                    style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#8B5CF6', color: 'white', cursor: 'pointer', fontSize: '0.8rem' }}
                   >
                     Follow
                   </button>
                 )}
+                <button 
+                  onClick={() => setAlbumPhotoSelect(selectedAlbum)}
+                  style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: '#10B981', color: 'white', cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  + Add Photos
+                </button>
                 <button 
                   onClick={() => {
                     const newAlbums = [...albums];
@@ -970,6 +1038,49 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {albumPhotoSelect !== null && albums[albumPhotoSelect] && (
+        <div style={styles.modal} onClick={() => setAlbumPhotoSelect(null)}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', maxWidth: '500px' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: 16, color: isDark ? 'white' : '#262626' }}>Add Photos to {albums[albumPhotoSelect].name}</h3>
+            {(() => {
+              const userPhotos = posts.filter(p => p.user_id === user?.id || p.username === user?.username);
+              if (userPhotos.length === 0) return <p style={{ color: secondaryText, textAlign: 'center', padding: 20 }}>No photos uploaded yet</p>;
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, maxHeight: 300, overflowY: 'auto' }}>
+                  {userPhotos.map((photo, i) => {
+                    const alreadyIn = albums[albumPhotoSelect]?.photos.includes(photo.media_url);
+                    return (
+                      <div 
+                        key={i} 
+                        onClick={() => {
+                          if (alreadyIn) return;
+                          const newAlbums = [...albums];
+                          newAlbums[albumPhotoSelect].photos.push(photo.media_url);
+                          if (!newAlbums[albumPhotoSelect].cover) newAlbums[albumPhotoSelect].cover = photo.media_url;
+                          setAlbums(newAlbums);
+                          localStorage.setItem('omnisee_albums', JSON.stringify(newAlbums));
+                        }}
+                        style={{ 
+                          aspectRatio: '1/1', 
+                          background: `url(${photo.media_url}) center/cover`, 
+                          cursor: alreadyIn ? 'default' : 'pointer',
+                          opacity: alreadyIn ? 0.5 : 1,
+                          border: alreadyIn ? '3px solid #10B981' : '3px solid transparent',
+                          borderRadius: 8
+                        }}
+                      >
+                        {alreadyIn && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: '#10B981', color: 'white', padding: '2px 6px', borderRadius: 4, fontSize: '0.7rem' }}>Added</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+            <button onClick={() => setAlbumPhotoSelect(null)} style={{ marginTop: 16, width: '100%', padding: 10, background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Done</button>
           </div>
         </div>
       )}
@@ -1022,6 +1133,17 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
             </div>
           </div>
         </div>
+      )}
+
+      {viewingPost && (
+        <PanoramaViewer
+          post={viewingPost}
+          author={postAuthor}
+          currentUser={user}
+          darkMode={darkMode}
+          onClose={() => setViewingPost(null)}
+          onDelete={() => { deletePost(viewingPost.id); setViewingPost(null); }}
+        />
       )}
     </div>
   );
