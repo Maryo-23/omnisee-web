@@ -41,21 +41,15 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
   const API = 'https://omnisee-backend.onrender.com';
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     if (!containerRef.current || !post?.media_url) return;
 
     let mounted = true;
     let viewer: any;
 
-    const init = () => {
+    const init = async () => {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const Marzipano = (window as any).Marzipano;
-        if (!Marzipano) {
-          setErrorMsg('Marzipano not loaded from CDN');
-          setError(true);
-          setLoading(false);
-          return;
-        }
+        const Marzipano = (await import('marzipano')).default;
         if (!mounted || !containerRef.current) return;
 
         const el = containerRef.current;
@@ -109,15 +103,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
       }
     };
 
-    // Wait for script to load
-    const waitForMarzipano = () => {
-      if ((window as any).Marzipano) {
-        init();
-      } else {
-        setTimeout(waitForMarzipano, 100);
-      }
-    };
-    waitForMarzipano();
+    setTimeout(() => { if (mounted) init(); }, 200);
 
     return () => {
       mounted = false;
