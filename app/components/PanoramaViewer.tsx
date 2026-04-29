@@ -81,6 +81,9 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         controls.registerMethod('scrollZoom', new Marzipano.ScrollZoomControlMethod());
         controls.registerMethod('drag', new Marzipano.DragControlMethod());
         controls.registerMethod('pinchZoom', new Marzipano.PinchZoomControlMethod());
+        controls.enableMethod('scrollZoom');
+        controls.enableMethod('drag');
+        controls.enableMethod('pinchZoom');
 
         // Resize after a short delay to catch any layout settling
         const doResize = () => { if (viewer) viewer.resize(); };
