@@ -10,6 +10,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://unpkg.com/marzipano@0.10.4/dist/marzipano.js" crossOrigin="anonymous"></script>
+      </head>
       <body>
         <Providers>{children}</Providers>
       </body>

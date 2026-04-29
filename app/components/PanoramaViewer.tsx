@@ -46,23 +46,26 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
     let mounted = true;
     let viewer: any;
 
-    const init = async () => {
+    const init = () => {
       try {
-        console.log('[OmniSee] Starting Marzipano init...');
-        const Marzipano = (await import('marzipano')).default;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const Marzipano = (window as any).Marzipano;
+        if (!Marzipano) {
+          setErrorMsg('Marzipano not loaded from CDN');
+          setError(true);
+          setLoading(false);
+          return;
+        }
         if (!mounted || !containerRef.current) return;
 
         const el = containerRef.current;
-        console.log('[OmniSee] Container:', el.clientWidth, 'x', el.clientHeight);
 
         if (el.clientWidth === 0 || el.clientHeight === 0) {
-          console.warn('[OmniSee] Container has zero size, retrying...');
           setTimeout(() => { if (mounted) init(); }, 300);
           return;
         }
 
         viewer = new Marzipano.Viewer(el, { stageType: 'webgl' });
-        console.log('[OmniSee] Marzipano Viewer created');
 
         const source = Marzipano.ImageUrlSource.fromString(
           post.media_url,
@@ -78,28 +81,14 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
 
         const scene = viewer.createScene({ source, geometry, view, pinFirstLevel: true });
         scene.switchTo();
-        console.log('[OmniSee] Scene switched');
 
         const controls = viewer.controls();
-        console.log('[OmniSee] Controls methods:', Object.keys(controls));
-
         controls.registerMethod('scrollZoom', new Marzipano.ScrollZoomControlMethod());
         controls.registerMethod('drag', new Marzipano.DragControlMethod());
         controls.registerMethod('pinchZoom', new Marzipano.PinchZoomControlMethod());
-
-        // Enable methods with error handling
-        ['scrollZoom', 'drag', 'pinchZoom'].forEach((method) => {
-          try {
-            controls.enableMethod(method);
-            console.log('[OmniSee] Enabled method:', method);
-          } catch (e: any) {
-            console.error('[OmniSee] Failed to enable', method, e.message);
-          }
-        });
-
-        // Verify canvas exists
-        const canvas = el.querySelector('canvas');
-        console.log('[OmniSee] Canvas found:', !!canvas, canvas?.clientWidth, canvas?.clientHeight);
+        controls.enableMethod('scrollZoom');
+        controls.enableMethod('drag');
+        controls.enableMethod('pinchZoom');
 
         const doResize = () => { if (viewer) viewer.resize(); };
         doResize();
@@ -107,13 +96,9 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         setTimeout(doResize, 500);
         window.addEventListener('resize', doResize);
 
-        if (mounted) {
-          setLoading(false);
-          console.log('[OmniSee] Init complete, loading=false');
-        }
-
-        // Store cleanup
         (viewer as any).__cleanup = () => window.removeEventListener('resize', doResize);
+
+        if (mounted) setLoading(false);
       } catch (err: any) {
         console.error('[OmniSee] Marzipano init error:', err);
         if (mounted) {
@@ -124,8 +109,15 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
       }
     };
 
-    // Delay init to ensure layout is settled
-    setTimeout(() => { if (mounted) init(); }, 200);
+    // Wait for script to load
+    const waitForMarzipano = () => {
+      if ((window as any).Marzipano) {
+        init();
+      } else {
+        setTimeout(waitForMarzipano, 100);
+      }
+    };
+    waitForMarzipano();
 
     return () => {
       mounted = false;
@@ -212,7 +204,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
           </div>
         )}
 
-        {/* Top Left Buttons - pointerEvents: none on container, auto on buttons */}
+        {/* Top Left Buttons */}
         <div style={{ position: 'absolute', top: 24, left: 24, display: 'flex', flexDirection: 'column', gap: 12, zIndex: 20, pointerEvents: 'none' }}>
           <button onClick={onClose} style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, pointerEvents: 'auto' }} title="Back">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
