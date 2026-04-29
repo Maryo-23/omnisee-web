@@ -46,6 +46,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
     let mounted = true;
     let viewer: any;
     let resizeHandler: (() => void) | null = null;
+    let ro: ResizeObserver | null = null;
 
     const init = async () => {
       try {
@@ -103,9 +104,17 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         const resize = () => {
           if (!viewer || !el) return;
           viewer.resize();
+          viewer.render?.();
         };
         resizeHandler = resize;
         window.addEventListener('resize', resizeHandler);
+
+        // Watch for container size changes (flex layout, sidebar collapse, etc.)
+        if (typeof ResizeObserver !== 'undefined') {
+          ro = new ResizeObserver(() => resize());
+          ro.observe(el);
+        }
+
         resize();
         requestAnimationFrame(resize);
         setTimeout(resize, 100);
@@ -129,6 +138,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
     return () => {
       mounted = false;
       if (resizeHandler) window.removeEventListener('resize', resizeHandler);
+      if (ro) ro.disconnect();
       if (viewer && typeof viewer.destroy === 'function') {
         viewer.destroy();
       }
@@ -218,7 +228,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         onClick={(e) => e.stopPropagation()}
       >
         {/* Marzipano Canvas */}
-        <div ref={containerRef} style={{ position: 'absolute', inset: 0, touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', cursor: 'move' }} />
+        <div ref={containerRef} style={{ position: 'absolute', inset: 0, touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none', cursor: 'move', zIndex: 1 }} />
 
         {/* Loading */}
         {loading && (
