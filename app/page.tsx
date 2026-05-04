@@ -85,6 +85,9 @@ export default function Home() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [editingPost, setEditingPost] = useState<any>(null);
+  const [editCaption, setEditCaption] = useState('');
+  const [editLocation, setEditLocation] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cropImage, setCropImage] = useState<string | null>(null);
   const [cropping, setCropping] = useState(false);
@@ -122,6 +125,35 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
 
   const viewPost = (post: any) => {
     setViewingPost(post);
+  };
+
+  const editPost = async () => {
+    if (!editingPost) return;
+    try {
+      const res = await fetch(`https://omnisee-backend.onrender.com/api/posts/${editingPost.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption: editCaption, location: editLocation }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPosts(prev => {
+          const updated = prev.map(p => p.id === editingPost.id ? { ...p, caption: editCaption, location: editLocation } : p);
+          localStorage.setItem('omnisee_posts', JSON.stringify(updated));
+          return updated;
+        });
+        if (viewingPost?.id === editingPost.id) {
+          setViewingPost({ ...viewingPost, caption: editCaption, location: editLocation });
+        }
+        setEditingPost(null);
+      }
+    } catch (err) { console.error('Edit failed', err); }
+  };
+
+  const startEditPost = (post: any) => {
+    setEditingPost(post);
+    setEditCaption(post.caption || '');
+    setEditLocation(post.location || '');
   };
   const [following, setFollowing] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -525,7 +557,10 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       )}
 
       <div style={styles.topNav(darkMode)}>
-        <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Billabong, cursive' }}>OmniSee</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Billabong, cursive' }}>OmniSee</span>
+          <a href="/tours/" style={{ color: textColor, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>Tours</a>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button 
             onClick={() => setDarkMode(!darkMode)}
@@ -657,12 +692,19 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   {posts.map((post) => (
                     <div key={post.id} style={{ background: isDark ? '#000' : '#fff', border: `1px solid ${isDark ? '#262626' : '#DBDBDB'}`, borderRadius: 12, overflow: 'hidden' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
-                        <img src={post.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.username || 'user'}`} style={{ width: 32, height: 32, borderRadius: '50%' }} alt="" />
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{post.displayName || post.username || 'User'}</div>
-                          <div style={{ fontSize: '0.75rem', color: secondaryText }}>{post.location || 'Unknown location'}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <img src={post.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.username || 'user'}`} style={{ width: 32, height: 32, borderRadius: '50%' }} alt="" />
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{post.displayName || post.username || 'User'}</div>
+                            <div style={{ fontSize: '0.75rem', color: secondaryText }}>{post.location || 'Unknown location'}</div>
+                          </div>
                         </div>
+                        {(post.user_id === user?.id || post.username === user?.username) && (
+                          <button onClick={() => startEditPost(post)} style={{ background: 'none', border: 'none', color: secondaryText, cursor: 'pointer', fontSize: '0.8rem' }}>
+                            Edit
+                          </button>
+                        )}
                       </div>
                       <div onClick={() => viewPost(post)} style={{ cursor: 'pointer', aspectRatio: '16/9', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {!post.media_url && <span style={{ color: secondaryText }}>360 Photo</span>}
@@ -1006,6 +1048,20 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
               >
                 Cancel
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {editingPost && (
+        <div style={styles.modal} onClick={() => setEditingPost(null)}>
+          <div style={{ ...styles.modalContent, background: isDark ? '#1A1A2E' : '#FFFFFF', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: 20, color: isDark ? 'white' : '#262626' }}>Edit Post</h3>
+            <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} value={editCaption} onChange={(e) => setEditCaption(e.target.value)} placeholder="Caption" />
+            <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} value={editLocation} onChange={(e) => setEditLocation(e.target.value)} placeholder="Location" />
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button onClick={editPost} style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Save</button>
+              <button onClick={() => setEditingPost(null)} style={{ flex: 1, padding: '12px', background: isDark ? '#262626' : '#E5E5E5', color: isDark ? 'white' : '#262626', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
             </div>
           </div>
         </div>
