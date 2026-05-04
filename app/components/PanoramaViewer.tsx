@@ -78,14 +78,11 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         scene.switchTo();
 
         const controls = viewer.controls();
-        controls.registerMethod('scrollZoom', new Marzipano.ScrollZoomControlMethod(el));
-        controls.registerMethod('mouseDrag', new Marzipano.DragControlMethod(el, 'mouse'));
-        controls.registerMethod('touchDrag', new Marzipano.DragControlMethod(el, 'touch'));
-        controls.registerMethod('pinchZoom', new Marzipano.PinchZoomControlMethod(el, 'touch'));
-        controls.enableMethod('scrollZoom');
-        controls.enableMethod('mouseDrag');
-        controls.enableMethod('touchDrag');
-        controls.enableMethod('pinchZoom');
+        Marzipano.registerDefaultControls(controls, el, {
+          mouseViewMode: 'drag',
+          dragMode: 'pan',
+          scrollZoom: true,
+        });
 
         const doResize = () => { if (viewer) viewer.resize(); };
         doResize();

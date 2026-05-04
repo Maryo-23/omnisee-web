@@ -267,7 +267,17 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       if (!res.ok) throw new Error(data.error || 'Something went wrong');
       
       if (mode === 'login') {
-        const userToSave = data.user;
+        let userToSave = data.user;
+        // Preserve frontend avatar if backend db was reset (ephemeral filesystem)
+        const saved = localStorage.getItem('user');
+        if (saved) {
+          try {
+            const savedUser = JSON.parse(saved);
+            if (savedUser.id === userToSave.id && !userToSave.avatar_url && savedUser.avatar_url) {
+              userToSave = { ...userToSave, avatar_url: savedUser.avatar_url };
+            }
+          } catch {}
+        }
         localStorage.setItem('user', JSON.stringify(userToSave));
         setUser(userToSave);
         fetchPosts();
