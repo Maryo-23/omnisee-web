@@ -648,8 +648,38 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
           )}
 
           {feedTab === 'foryou' && (
-            <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-              <p style={{ color: secondaryText }}>Welcome to your feed! Follow users and topics to see content here.</p>
+            <div>
+              {posts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                  <p style={{ color: secondaryText }}>No posts yet. Upload your first 360 photo!</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  {posts.map((post) => (
+                    <div key={post.id} style={{ background: isDark ? '#000' : '#fff', border: `1px solid ${isDark ? '#262626' : '#DBDBDB'}`, borderRadius: 12, overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
+                        <img src={post.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.username || 'user'}`} style={{ width: 32, height: 32, borderRadius: '50%' }} alt="" />
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{post.displayName || post.username || 'User'}</div>
+                          <div style={{ fontSize: '0.75rem', color: secondaryText }}>{post.location || 'Unknown location'}</div>
+                        </div>
+                      </div>
+                      <div onClick={() => viewPost(post)} style={{ cursor: 'pointer', aspectRatio: '16/9', background: post.media_url ? `url(${post.media_url}) center/cover` : '#262626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {!post.media_url && <span style={{ color: secondaryText }}>360 Photo</span>}
+                      </div>
+                      <div style={{ padding: '12px 16px' }}>
+                        <div style={{ display: 'flex', gap: 16, marginBottom: 8 }}>
+                          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth={2} style={{ cursor: 'pointer' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+                          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth={2} style={{ cursor: 'pointer' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
+                          <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={textColor} strokeWidth={2} style={{ cursor: 'pointer' }} onClick={() => navigator.clipboard.writeText(window.location.href)}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v15" /></svg>
+                        </div>
+                        <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: 4 }}>{(post.likes_count || 0).toLocaleString()} likes</div>
+                        <div style={{ fontSize: '0.9rem' }}><span style={{ fontWeight: 600, marginRight: 6 }}>{post.username || 'user'}</span>{post.caption || ''}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
