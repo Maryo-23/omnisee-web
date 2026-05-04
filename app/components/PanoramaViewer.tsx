@@ -77,12 +77,8 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         const scene = viewer.createScene({ source, geometry, view, pinFirstLevel: true });
         scene.switchTo();
 
-        const controls = viewer.controls();
-        Marzipano.registerDefaultControls(controls, el, {
-          mouseViewMode: 'drag',
-          dragMode: 'pan',
-          scrollZoom: true,
-        });
+        // Controls already registered by Viewer constructor with defaults:
+        // mouseViewMode: 'drag', dragMode: 'pan', scrollZoom: true
 
         const doResize = () => { if (viewer) viewer.resize(); };
         doResize();
