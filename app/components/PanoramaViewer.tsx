@@ -80,7 +80,7 @@ export default function PanoramaViewer({ post, author, currentUser, darkMode, on
         // Controls already registered by Viewer constructor with defaults:
         // mouseViewMode: 'drag', dragMode: 'pan', scrollZoom: true
 
-        const doResize = () => { if (viewer) viewer.resize(); };
+        const doResize = () => { if (viewer) viewer.updateSize(); };
         doResize();
         setTimeout(doResize, 100);
         setTimeout(doResize, 500);
