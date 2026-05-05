@@ -699,7 +699,13 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                     <div key={post.id} style={{ background: isDark ? '#000' : '#fff', border: `1px solid ${isDark ? '#262626' : '#DBDBDB'}`, borderRadius: 12, overflow: 'hidden' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <img src={post.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.username || 'user'}`} style={{ width: 32, height: 32, borderRadius: '50%' }} alt="" />
+                          {post.avatarUrl ? (
+                            <img src={post.avatarUrl} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} alt="" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                          ) : (
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 700 }}>
+                              {(post.displayName || post.username || 'U')[0].toUpperCase()}
+                            </div>
+                          )}
                           <div>
                             <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{post.displayName || post.username || 'User'}</div>
                             <div style={{ fontSize: '0.75rem', color: secondaryText }}>{post.location || 'Unknown location'}</div>
