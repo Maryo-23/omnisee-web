@@ -218,8 +218,18 @@ export default function ToursPage() {
     <div style={{ minHeight: '100vh', background: isDark ? '#0a0a0a' : '#fafafa', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, Inter, sans-serif' }}>
       {/* Top Nav */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 50, background: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderBottom: `1px solid ${isDark ? '#262626' : '#DBDBDB'}` }}>
-        <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>OmniSee Tours</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>OmniSee Tours</span>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: textColor, textDecoration: 'none', fontSize: '0.8rem', fontWeight: 500, border: `1px solid ${isDark ? '#333' : '#e5e7eb'}` }}>
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+            Back to Feed
+          </a>
+        </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <button onClick={() => setShowPayment(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, border: 'none', background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#1a1a1a', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', boxShadow: '0 2px 8px rgba(255,215,0,0.3)' }}>
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 2v20M2 12h20" /></svg>
+            Upgrade
+          </button>
           <button onClick={() => setDarkMode(!darkMode)} style={{ padding: '8px 12px', borderRadius: 8, border: 'none', background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', color: textColor, cursor: 'pointer' }}>
             {darkMode ? 'Light' : 'Dark'}
           </button>
@@ -241,6 +251,17 @@ export default function ToursPage() {
                   + Create Tour
                 </button>
               )}
+            </div>
+
+            {/* Premium Banner - Prominent */}
+            <div style={{ marginBottom: 32, padding: '24px 28px', borderRadius: 16, background: 'linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, boxShadow: '0 8px 32px rgba(99,102,241,0.3)' }}>
+              <div>
+                <div style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 4 }}>Premium 360 Virtual Tours</div>
+                <div style={{ fontSize: '0.9rem', opacity: 0.9, maxWidth: 500 }}>Unlock unlimited scenes, custom branding, embeddable tours, and hotspot linking. Pay once, keep forever.</div>
+              </div>
+              <button onClick={() => setShowPayment(true)} style={{ padding: '12px 28px', borderRadius: 30, border: '2px solid white', background: 'rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', backdropFilter: 'blur(10px)', whiteSpace: 'nowrap' }}>
+                Upgrade $5
+              </button>
             </div>
 
             {tours.length === 0 ? (
@@ -269,13 +290,6 @@ export default function ToursPage() {
                 ))}
               </div>
             )}
-            <div style={{ textAlign: 'center', marginTop: 40, padding: '30px', background: isDark ? '#1a1a1a' : '#fff', borderRadius: 12, border: `1px solid ${isDark ? '#262626' : '#e5e7eb'}` }}>
-              <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Support 360 Virtual Tours</h3>
-              <p style={{ color: secondaryText, fontSize: '0.9rem', marginBottom: 16 }}>Unlock premium features: unlimited scenes, custom branding, and embeddable tours. One-time payment.</p>
-              <button onClick={() => setShowPayment(true)} style={{ padding: '12px 32px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', cursor: 'pointer', fontWeight: 600, fontSize: '1rem' }}>
-                Upgrade for $5
-              </button>
-            </div>
           </>
         )}
 

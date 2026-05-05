@@ -559,7 +559,10 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       <div style={styles.topNav(darkMode)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <span style={{ fontWeight: 'bold', fontSize: '1.5rem', background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Billabong, cursive' }}>OmniSee</span>
-          <a href="/tours/" style={{ color: textColor, textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>Tours</a>
+          <a href="/tours/" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, boxShadow: '0 2px 8px rgba(99,102,241,0.3)' }}>
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 22V12h6v10" /></svg>
+            360 Tours
+          </a>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button 
