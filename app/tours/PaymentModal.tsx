@@ -31,7 +31,7 @@ export default function PaymentModal({ amount, description, onClose, darkMode }:
       const res = await fetch(`${API}/api/create-payment-intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, currency: 'usd' }),
+        body: JSON.stringify({ amount, currency: 'cad' }),
       });
       const data = await res.json();
       if (data.clientSecret) {
@@ -67,7 +67,8 @@ export default function PaymentModal({ amount, description, onClose, darkMode }:
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }} onClick={onClose}>
       <div style={{ background: isDark ? '#1A1A2E' : '#FFFFFF', borderRadius: 24, padding: 40, maxWidth: 420, width: '90%' }} onClick={e => e.stopPropagation()}>
         <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: 8, color: textColor }}>Complete Payment</h3>
-        <p style={{ color: secondaryText, marginBottom: 20 }}>{description} — ${amount.toFixed(2)}</p>
+        <p style={{ color: secondaryText, marginBottom: 20 }}>{description}</p>
+        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#6366F1', marginBottom: 20, textAlign: 'center' }}>${amount.toFixed(2)} CAD<span style={{ fontSize: '0.9rem', color: secondaryText, fontWeight: 400 }}> per tour</span></div>
 
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12, justifyContent: 'center' }}>
@@ -91,7 +92,7 @@ export default function PaymentModal({ amount, description, onClose, darkMode }:
 
         <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
           <button onClick={handlePayment} disabled={loading} style={{ flex: 1, padding: '12px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #6366F1, #EC4899)', color: 'white', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, fontWeight: 600 }}>
-            {loading ? 'Processing...' : `Pay $${amount.toFixed(2)}`}
+            {loading ? 'Processing...' : `Pay $${amount.toFixed(2)} CAD`}
           </button>
           <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: 8, border: 'none', background: isDark ? '#262626' : '#e5e7eb', color: textColor, cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
         </div>

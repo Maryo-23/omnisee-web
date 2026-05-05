@@ -260,7 +260,7 @@ export default function ToursPage() {
                 <div style={{ fontSize: '0.9rem', opacity: 0.9, maxWidth: 500 }}>Unlock unlimited scenes, custom branding, embeddable tours, and hotspot linking. Pay once, keep forever.</div>
               </div>
               <button onClick={() => setShowPayment(true)} style={{ padding: '12px 28px', borderRadius: 30, border: '2px solid white', background: 'rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', backdropFilter: 'blur(10px)', whiteSpace: 'nowrap' }}>
-                Upgrade $5
+                Upgrade $10 CAD / tour
               </button>
             </div>
 
@@ -407,7 +407,7 @@ export default function ToursPage() {
 
       {/* Create Tour Modal */}
       {showPayment && (
-        <PaymentModal amount={5} description="Premium Virtual Tour" onClose={() => setShowPayment(false)} darkMode={darkMode} />
+        <PaymentModal amount={10} description="Unlock this tour: unlimited scenes, custom branding, embeddable player, and hotspot linking" onClose={() => setShowPayment(false)} darkMode={darkMode} />
       )}
 
       {showCreateModal && (
