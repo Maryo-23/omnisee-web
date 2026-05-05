@@ -84,6 +84,7 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [uploadCaption, setUploadCaption] = useState('');
+  const [uploadLocation, setUploadLocation] = useState('');
   const [uploading, setUploading] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
   const [editCaption, setEditCaption] = useState('');
@@ -339,6 +340,7 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       formData.append('file', selectedFile);
       formData.append('userId', user.id);
       formData.append('caption', uploadCaption);
+      formData.append('location', uploadLocation);
       formData.append('mediaType', selectedFile.type.startsWith('video/') ? 'video' : 'photo');
       
       const res = await fetch('https://omnisee-backend.onrender.com/api/posts', {
@@ -898,6 +900,7 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
                 </select>
               )}
               <textarea style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626', minHeight: '100px', resize: 'vertical' }} placeholder="Write a caption..." value={uploadCaption} onChange={e => setUploadCaption(e.target.value)} />
+              <input style={{ ...styles.input, background: isDark ? 'rgba(15,15,35,0.8)' : '#F5F5F5', border: isDark ? '1px solid rgba(45,45,74,0.8)' : '1px solid #E5E5E5', color: isDark ? 'white' : '#262626' }} placeholder="Location (e.g. Montreal, Canada)" value={uploadLocation} onChange={e => setUploadLocation(e.target.value)} />
               <div style={{ marginBottom: 16 }}>
                 <label style={{ fontSize: '0.85rem', color: secondaryText, display: 'block', marginBottom: 8 }}>Topic Tags</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
