@@ -197,6 +197,20 @@ const [selectedAlbum, setSelectedAlbum] = useState<number | null>(null);
       }
       setUser(savedUser);
       setView('feed');
+      // Sync avatar to backend if present
+      if (savedUser.avatar_url) {
+        fetch('https://omnisee-backend.onrender.com/api/users/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: savedUser.id,
+            displayName: savedUser.display_name || '',
+            bio: savedUser.bio || '',
+            avatarUrl: savedUser.avatar_url,
+            customDomain: savedUser.customDomain || '',
+          }),
+        }).catch(() => {});
+      }
     } else {
       setShowModal(true);
       setMode('signup');
